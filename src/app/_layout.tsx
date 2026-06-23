@@ -1,8 +1,7 @@
 import { Tabs } from 'expo-router';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 import { useTheme } from '@/hooks/use-theme';
 import { ThemedText } from '@/components/ThemedText';
-import { BlurView } from 'expo-blur';
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   return (
