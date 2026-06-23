@@ -1,0 +1,6 @@
+:root {
+  --font-display: system-ui, -apple-system, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-rounded: system-ui, -apple-system, sans-serif;
+  --font-mono: Menlo, monospace;
+}
