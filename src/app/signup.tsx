@@ -13,12 +13,14 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
 
-export default function LoginScreen() {
+export default function SignupScreen() {
   const theme = useTheme();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleLogin = () => {
+  const handleSignup = () => {
     router.replace('/(tabs)');
   };
 
@@ -44,10 +46,31 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.formSection}>
-            <ThemedText style={styles.welcome}>Welcome Back</ThemedText>
+            <ThemedText style={styles.heading}>Create Account</ThemedText>
             <ThemedText themeColor="textSecondary" style={styles.subtitle}>
-              Log in to continue your journey
+              Start your fitness journey today
             </ThemedText>
+
+            <View style={styles.inputGroup}>
+              <ThemedText themeColor="textSecondary" style={styles.inputLabel}>
+                Name
+              </ThemedText>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.cardBorder,
+                    color: theme.text,
+                  },
+                ]}
+                placeholder="Enter your name"
+                placeholderTextColor={theme.textSecondary}
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+              />
+            </View>
 
             <View style={styles.inputGroup}>
               <ThemedText themeColor="textSecondary" style={styles.inputLabel}>
@@ -84,7 +107,7 @@ export default function LoginScreen() {
                     color: theme.text,
                   },
                 ]}
-                placeholder="Enter your password"
+                placeholder="Create a password"
                 placeholderTextColor={theme.textSecondary}
                 value={password}
                 onChangeText={setPassword}
@@ -92,11 +115,32 @@ export default function LoginScreen() {
               />
             </View>
 
+            <View style={styles.inputGroup}>
+              <ThemedText themeColor="textSecondary" style={styles.inputLabel}>
+                Confirm Password
+              </ThemedText>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.cardBorder,
+                    color: theme.text,
+                  },
+                ]}
+                placeholder="Confirm your password"
+                placeholderTextColor={theme.textSecondary}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+              />
+            </View>
+
             <Pressable
-              style={[styles.loginBtn, { backgroundColor: theme.primary }]}
-              onPress={handleLogin}
+              style={[styles.signupBtn, { backgroundColor: theme.primary }]}
+              onPress={handleSignup}
             >
-              <ThemedText style={styles.loginBtnText}>Log In</ThemedText>
+              <ThemedText style={styles.signupBtnText}>Create Account</ThemedText>
             </Pressable>
 
             <View style={styles.divider}>
@@ -125,12 +169,12 @@ export default function LoginScreen() {
 
       <View style={styles.bottom}>
         <ThemedText themeColor="textSecondary" style={styles.bottomText}>
-          Don't have an account?{' '}
+          Already have an account?{' '}
           <ThemedText
-            style={[styles.signupText, { color: theme.primary }]}
-            onPress={() => router.push('/signup')}
+            style={[styles.loginText, { color: theme.primary }]}
+            onPress={() => router.back()}
           >
-            Sign Up
+            Log In
           </ThemedText>
         </ThemedText>
       </View>
@@ -149,45 +193,45 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 28,
-    paddingTop: 80,
+    paddingTop: 60,
     paddingBottom: 40,
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: 48,
+    marginBottom: 40,
   },
   logoWrapper: {
-    width: 80,
-    height: 80,
-    borderRadius: 24,
+    width: 72,
+    height: 72,
+    borderRadius: 22,
     backgroundColor: 'rgba(0, 212, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   logoText: {
-    fontSize: 40,
+    fontSize: 36,
     fontWeight: '900',
   },
   brandName: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '800',
     letterSpacing: 1,
   },
   formSection: {
     width: '100%',
   },
-  welcome: {
+  heading: {
     fontSize: 28,
     fontWeight: '700',
   },
   subtitle: {
     fontSize: 14,
     marginTop: 6,
-    marginBottom: 32,
+    marginBottom: 28,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   inputLabel: {
     fontSize: 13,
@@ -203,14 +247,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
   },
-  loginBtn: {
+  signupBtn: {
     height: 52,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginTop: 4,
   },
-  loginBtnText: {
+  signupBtnText: {
     color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '700',
@@ -218,7 +262,7 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 28,
+    marginTop: 24,
     marginBottom: 20,
   },
   dividerLine: {
@@ -254,7 +298,7 @@ const styles = StyleSheet.create({
   bottomText: {
     fontSize: 13,
   },
-  signupText: {
+  loginText: {
     fontSize: 13,
     fontWeight: '700',
   },
