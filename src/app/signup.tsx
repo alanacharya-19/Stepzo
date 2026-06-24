@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   View,
   TextInput,
-  StyleSheet,
   Pressable,
   KeyboardAvoidingView,
   Platform,
@@ -25,45 +24,46 @@ export default function SignupScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView className="flex-1">
       <KeyboardAvoidingView
-        style={styles.flex}
+        className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          contentContainerStyle={styles.scroll}
+          contentContainerClassName="grow justify-center px-7 pt-[60] pb-10"
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.logoSection}>
-            <View style={styles.logoWrapper}>
-              <ThemedText style={[styles.logoText, { color: theme.primary }]}>
+          <View className="items-center mb-10">
+            <View
+              className="w-[72] h-[72] rounded-[22] items-center justify-center mb-2.5"
+              style={{ backgroundColor: 'rgba(0, 212, 255, 0.12)' }}
+            >
+              <ThemedText className="text-[36px] font-black" style={{ color: theme.primary }}>
                 S
               </ThemedText>
             </View>
-            <ThemedText style={[styles.brandName, { color: theme.primary }]}>
+            <ThemedText className="text-2xl font-extrabold tracking-wide" style={{ color: theme.primary }}>
               Stepzo
             </ThemedText>
           </View>
 
-          <View style={styles.formSection}>
-            <ThemedText style={styles.heading}>Create Account</ThemedText>
-            <ThemedText themeColor="textSecondary" style={styles.subtitle}>
+          <View className="w-full">
+            <ThemedText className="text-[28px] font-bold">Create Account</ThemedText>
+            <ThemedText className="text-sm mt-1.5 mb-7" style={{ color: theme.textSecondary }}>
               Start your fitness journey today
             </ThemedText>
 
-            <View style={styles.inputGroup}>
-              <ThemedText themeColor="textSecondary" style={styles.inputLabel}>
+            <View className="mb-4">
+              <ThemedText className="text-[13px] font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textSecondary }}>
                 Name
               </ThemedText>
               <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.backgroundElement,
-                    borderColor: theme.cardBorder,
-                    color: theme.text,
-                  },
-                ]}
+                className="h-[52] rounded-xl border px-4 text-base"
+                style={{
+                  backgroundColor: theme.backgroundElement,
+                  borderColor: theme.cardBorder,
+                  color: theme.text,
+                }}
                 placeholder="Enter your name"
                 placeholderTextColor={theme.textSecondary}
                 value={name}
@@ -72,19 +72,17 @@ export default function SignupScreen() {
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <ThemedText themeColor="textSecondary" style={styles.inputLabel}>
+            <View className="mb-4">
+              <ThemedText className="text-[13px] font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textSecondary }}>
                 Email
               </ThemedText>
               <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.backgroundElement,
-                    borderColor: theme.cardBorder,
-                    color: theme.text,
-                  },
-                ]}
+                className="h-[52] rounded-xl border px-4 text-base"
+                style={{
+                  backgroundColor: theme.backgroundElement,
+                  borderColor: theme.cardBorder,
+                  color: theme.text,
+                }}
                 placeholder="Enter your email"
                 placeholderTextColor={theme.textSecondary}
                 value={email}
@@ -94,19 +92,17 @@ export default function SignupScreen() {
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <ThemedText themeColor="textSecondary" style={styles.inputLabel}>
+            <View className="mb-4">
+              <ThemedText className="text-[13px] font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textSecondary }}>
                 Password
               </ThemedText>
               <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.backgroundElement,
-                    borderColor: theme.cardBorder,
-                    color: theme.text,
-                  },
-                ]}
+                className="h-[52] rounded-xl border px-4 text-base"
+                style={{
+                  backgroundColor: theme.backgroundElement,
+                  borderColor: theme.cardBorder,
+                  color: theme.text,
+                }}
                 placeholder="Create a password"
                 placeholderTextColor={theme.textSecondary}
                 value={password}
@@ -115,19 +111,17 @@ export default function SignupScreen() {
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <ThemedText themeColor="textSecondary" style={styles.inputLabel}>
+            <View className="mb-4">
+              <ThemedText className="text-[13px] font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textSecondary }}>
                 Confirm Password
               </ThemedText>
               <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.backgroundElement,
-                    borderColor: theme.cardBorder,
-                    color: theme.text,
-                  },
-                ]}
+                className="h-[52] rounded-xl border px-4 text-base"
+                style={{
+                  backgroundColor: theme.backgroundElement,
+                  borderColor: theme.cardBorder,
+                  color: theme.text,
+                }}
                 placeholder="Confirm your password"
                 placeholderTextColor={theme.textSecondary}
                 value={confirmPassword}
@@ -137,41 +131,41 @@ export default function SignupScreen() {
             </View>
 
             <Pressable
-              style={[styles.signupBtn, { backgroundColor: theme.primary }]}
+              className="h-[52] rounded-xl items-center justify-center mt-1"
+              style={{ backgroundColor: theme.primary }}
               onPress={handleSignup}
             >
-              <ThemedText style={styles.signupBtnText}>Create Account</ThemedText>
+              <ThemedText className="text-[17px] font-bold text-white">Create Account</ThemedText>
             </Pressable>
 
-            <View style={styles.divider}>
-              <View style={[styles.dividerLine, { backgroundColor: theme.cardBorder }]} />
-              <ThemedText themeColor="textSecondary" style={styles.dividerText}>
+            <View className="flex-row items-center mt-6 mb-5">
+              <View className="flex-1 h-[1px]" style={{ backgroundColor: theme.cardBorder }} />
+              <ThemedText className="text-[13px] mx-3.5" style={{ color: theme.textSecondary }}>
                 or continue with
               </ThemedText>
-              <View style={[styles.dividerLine, { backgroundColor: theme.cardBorder }]} />
+              <View className="flex-1 h-[1px]" style={{ backgroundColor: theme.cardBorder }} />
             </View>
 
             <Pressable
-              style={[
-                styles.googleBtn,
-                {
-                  backgroundColor: theme.backgroundElement,
-                  borderColor: theme.cardBorder,
-                },
-              ]}
+              className="h-[52] rounded-xl border flex-row items-center justify-center gap-2.5"
+              style={{
+                backgroundColor: theme.backgroundElement,
+                borderColor: theme.cardBorder,
+              }}
             >
-              <ThemedText style={styles.googleIcon}>G</ThemedText>
-              <ThemedText style={styles.googleText}>Google</ThemedText>
+              <ThemedText className="text-xl font-extrabold text-white">G</ThemedText>
+              <ThemedText className="text-base font-semibold">Google</ThemedText>
             </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <View style={styles.bottom}>
-        <ThemedText themeColor="textSecondary" style={styles.bottomText}>
+      <View className="items-center pb-[40]" style={{ paddingBottom: Platform.OS === 'ios' ? 40 : 24 }}>
+        <ThemedText className="text-[13px]" style={{ color: theme.textSecondary }}>
           Already have an account?{' '}
           <ThemedText
-            style={[styles.loginText, { color: theme.primary }]}
+            className="text-[13px] font-bold"
+            style={{ color: theme.primary }}
             onPress={() => router.back()}
           >
             Log In
@@ -181,125 +175,3 @@ export default function SignupScreen() {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  flex: {
-    flex: 1,
-  },
-  scroll: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 28,
-    paddingTop: 60,
-    paddingBottom: 40,
-  },
-  logoSection: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoWrapper: {
-    width: 72,
-    height: 72,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0, 212, 255, 0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  logoText: {
-    fontSize: 36,
-    fontWeight: '900',
-  },
-  brandName: {
-    fontSize: 24,
-    fontWeight: '800',
-    letterSpacing: 1,
-  },
-  formSection: {
-    width: '100%',
-  },
-  heading: {
-    fontSize: 28,
-    fontWeight: '700',
-  },
-  subtitle: {
-    fontSize: 14,
-    marginTop: 6,
-    marginBottom: 28,
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  input: {
-    height: 52,
-    borderRadius: 14,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    fontSize: 16,
-  },
-  signupBtn: {
-    height: 52,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
-  },
-  signupBtnText: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-  },
-  dividerText: {
-    fontSize: 13,
-    marginHorizontal: 14,
-  },
-  googleBtn: {
-    height: 52,
-    borderRadius: 14,
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  googleIcon: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  googleText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  bottom: {
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    alignItems: 'center',
-  },
-  bottomText: {
-    fontSize: 13,
-  },
-  loginText: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
-});

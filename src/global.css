@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --font-display: system-ui, -apple-system, sans-serif;
   --font-serif: Georgia, serif;

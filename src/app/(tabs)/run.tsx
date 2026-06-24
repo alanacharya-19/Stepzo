@@ -1,25 +1,13 @@
-import { StyleSheet } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 
 export default function RunScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="subtitle">🏃 Run</ThemedText>
-      <ThemedText themeColor="textSecondary" style={styles.sub}>
+    <ThemedView className="flex-1 items-center justify-center">
+      <ThemedText className="text-[32px] font-semibold">🏃 Run</ThemedText>
+      <ThemedText className="text-sm mt-2" themeColor="textSecondary">
         Start your next run here
       </ThemedText>
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sub: {
-    marginTop: 8,
-  },
-});

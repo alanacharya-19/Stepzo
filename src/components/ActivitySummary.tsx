@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { useTheme } from '@/hooks/use-theme';
 import { ThemedText } from '@/components/ThemedText';
 
@@ -21,31 +21,26 @@ function MiniCard({ item }: { item: ActivityItem }) {
   const theme = useTheme();
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-      <ThemedText style={styles.emoji}>{item.emoji}</ThemedText>
-      <ThemedText style={[styles.value, { color: item.color }]}>{item.value}</ThemedText>
-      <ThemedText themeColor="textSecondary" style={styles.unit}>
-        {item.unit}
-      </ThemedText>
-      <ThemedText themeColor="textSecondary" style={styles.label}>
-        {item.label}
-      </ThemedText>
+    <View className="flex-1 rounded-2xl border p-3 items-center" style={{ backgroundColor: theme.card, borderColor: theme.cardBorder }}>
+      <ThemedText className="text-[22px] mb-1.5">{item.emoji}</ThemedText>
+      <ThemedText className="text-lg font-extrabold" style={{ color: item.color }}>{item.value}</ThemedText>
+      <ThemedText className="text-[11px] mt-0.5" style={{ color: theme.textSecondary }}>{item.unit}</ThemedText>
+      <ThemedText className="text-[11px] mt-0.5 font-medium" style={{ color: theme.textSecondary }}>{item.label}</ThemedText>
     </View>
   );
 }
 
 export function ActivitySummary() {
+  const theme = useTheme();
+  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
   return (
-    <View style={styles.section}>
-      <View style={styles.header}>
-        <ThemedText type="default" style={styles.title}>
-          Today's Activity
-        </ThemedText>
-        <ThemedText themeColor="textSecondary" style={styles.date}>
-          {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-        </ThemedText>
+    <View className="mt-6 px-5">
+      <View className="flex-row justify-between items-center mb-3">
+        <ThemedText className="text-lg font-bold">Today's Activity</ThemedText>
+        <ThemedText className="text-[13px]" style={{ color: theme.textSecondary }}>{today}</ThemedText>
       </View>
-      <View style={styles.grid}>
+      <View className="flex-row gap-2.5">
         {ACTIVITIES.map((item) => (
           <MiniCard key={item.label} item={item} />
         ))}
@@ -53,51 +48,3 @@ export function ActivitySummary() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    marginTop: 24,
-    paddingHorizontal: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  date: {
-    fontSize: 13,
-  },
-  grid: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  card: {
-    flex: 1,
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 12,
-    alignItems: 'center',
-  },
-  emoji: {
-    fontSize: 22,
-    marginBottom: 6,
-  },
-  value: {
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  unit: {
-    fontSize: 11,
-    marginTop: 1,
-  },
-  label: {
-    fontSize: 11,
-    marginTop: 2,
-    fontWeight: '500',
-  },
-});

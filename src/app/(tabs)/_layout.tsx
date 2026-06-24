@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   return (
-    <ThemedText style={{ fontSize: 22, opacity: focused ? 1 : 0.5 }}>
+    <ThemedText className={`text-[22px] ${focused ? 'opacity-100' : 'opacity-50'}`}>
       {emoji}
     </ThemedText>
   );

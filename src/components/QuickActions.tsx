@@ -1,4 +1,4 @@
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useTheme } from '@/hooks/use-theme';
 import { ThemedText } from '@/components/ThemedText';
 
@@ -21,22 +21,16 @@ function ActionButton({ item }: { item: Action }) {
 
   return (
     <Pressable
-      style={[
-        styles.button,
-        {
-          backgroundColor: item.primary
-            ? item.color
-            : theme.backgroundSelected,
-          borderColor: item.primary ? 'transparent' : theme.cardBorder,
-        },
-      ]}
+      className="flex-1 rounded-2xl border p-4 items-center gap-2"
+      style={{
+        backgroundColor: item.primary ? item.color : theme.backgroundSelected,
+        borderColor: item.primary ? 'transparent' : theme.cardBorder,
+      }}
     >
-      <ThemedText style={styles.emoji}>{item.emoji}</ThemedText>
+      <ThemedText className="text-[26px]">{item.emoji}</ThemedText>
       <ThemedText
-        style={[
-          styles.label,
-          { color: item.primary ? '#FFFFFF' : theme.text },
-        ]}
+        className="text-xs font-bold"
+        style={{ color: item.primary ? '#FFFFFF' : theme.text }}
       >
         {item.label}
       </ThemedText>
@@ -46,9 +40,9 @@ function ActionButton({ item }: { item: Action }) {
 
 export function QuickActions() {
   return (
-    <View style={styles.section}>
-      <ThemedText style={styles.title}>Quick Actions</ThemedText>
-      <View style={styles.grid}>
+    <View className="mt-6 px-5">
+      <ThemedText className="text-lg font-bold mb-3">Quick Actions</ThemedText>
+      <View className="flex-row gap-2.5">
         {ACTIONS.map((item) => (
           <ActionButton key={item.label} item={item} />
         ))}
@@ -56,34 +50,3 @@ export function QuickActions() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    marginTop: 24,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
-  },
-  grid: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  button: {
-    flex: 1,
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 16,
-    alignItems: 'center',
-    gap: 8,
-  },
-  emoji: {
-    fontSize: 26,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-});

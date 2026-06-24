@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, Platform } from 'react-native';
+import { ScrollView, Platform } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { HomeHeader } from '@/components/HomeHeader';
@@ -13,11 +13,14 @@ import { SmartSuggestion } from '@/components/SmartSuggestion';
 
 export default function HomeScreen() {
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView className="flex-1">
       <HomeHeader />
       <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        className="flex-1"
+        contentContainerStyle={{
+          paddingTop: 8,
+          paddingBottom: Platform.OS === 'ios' ? 120 : 100,
+        }}
         showsVerticalScrollIndicator={false}
       >
         <UserProgressCard />
@@ -30,8 +33,8 @@ export default function HomeScreen() {
         <SmartSuggestion />
 
         <ThemedText
+          className="text-center text-xs mt-8 mb-2"
           themeColor="textSecondary"
-          style={styles.footer}
         >
           Stepzo v1.0.0 — Stay active
         </ThemedText>
@@ -39,22 +42,3 @@ export default function HomeScreen() {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 120 : 100,
-  },
-  footer: {
-    textAlign: 'center',
-    fontSize: 12,
-    marginTop: 32,
-    marginBottom: 8,
-  },
-});

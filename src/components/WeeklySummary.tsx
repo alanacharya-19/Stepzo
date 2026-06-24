@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { useTheme } from '@/hooks/use-theme';
 import { ThemedText } from '@/components/ThemedText';
 
@@ -22,36 +22,28 @@ function Bar({ item, maxVal, index }: { item: DayData; maxVal: number; index: nu
   const todayIndex = (new Date().getDay() + 6) % 7;
   const isToday = index === todayIndex;
   const barHeight = maxVal > 0 ? (item.value / maxVal) * 100 : 0;
-  const adjustedIndex = index === -1 ? 6 : index;
 
   return (
-    <View style={styles.barContainer}>
-      <View style={styles.barWrapper}>
+    <View className="flex-1 items-center justify-end">
+      <View className="w-6 h-20 justify-end items-center">
         <View
-          style={[
-            styles.bar,
-            {
-              height: `${Math.max(barHeight, 2)}%`,
-              backgroundColor: isToday ? theme.primary : theme.backgroundSelected,
-              opacity: item.value > 0 ? 1 : 0.3,
-            },
-          ]}
+          className="w-full rounded-[6]"
+          style={{
+            height: `${Math.max(barHeight, 2)}%`,
+            minHeight: 3,
+            backgroundColor: isToday ? theme.primary : theme.backgroundSelected,
+            opacity: item.value > 0 ? 1 : 0.3,
+          }}
         />
       </View>
       <ThemedText
-        themeColor={isToday ? undefined : 'textSecondary'}
-        style={[
-          styles.dayLabel,
-          isToday && { color: theme.primary, fontWeight: '700' },
-        ]}
+        className="text-[11px] mt-1.5 font-semibold"
+        style={isToday ? { color: theme.primary } : { color: theme.textSecondary }}
       >
         {item.day}
       </ThemedText>
       {item.value > 0 && (
-        <ThemedText
-          themeColor="textSecondary"
-          style={styles.valueLabel}
-        >
+        <ThemedText className="text-[9px] mt-0.5" style={{ color: theme.textSecondary }}>
           {item.value}km
         </ThemedText>
       )}
@@ -63,9 +55,9 @@ export function WeeklySummary() {
   const maxVal = Math.max(...WEEKLY_DATA.map((d) => d.value), 0.1);
 
   return (
-    <View style={styles.section}>
-      <ThemedText style={styles.title}>📈 Weekly Summary</ThemedText>
-      <View style={styles.chart}>
+    <View className="mt-6 px-5">
+      <ThemedText className="text-lg font-bold mb-4">📈 Weekly Summary</ThemedText>
+      <View className="flex-row justify-between items-end h-[120]">
         {WEEKLY_DATA.map((item, i) => (
           <Bar key={item.day} item={item} maxVal={maxVal} index={i} />
         ))}
@@ -73,46 +65,3 @@ export function WeeklySummary() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    marginTop: 24,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 16,
-  },
-  chart: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    height: 120,
-  },
-  barContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  barWrapper: {
-    width: 24,
-    height: 80,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  bar: {
-    width: '100%',
-    borderRadius: 6,
-    minHeight: 3,
-  },
-  dayLabel: {
-    fontSize: 11,
-    marginTop: 6,
-    fontWeight: '600',
-  },
-  valueLabel: {
-    fontSize: 9,
-    marginTop: 1,
-  },
-});

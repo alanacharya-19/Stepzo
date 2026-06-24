@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { useTheme } from '@/hooks/use-theme';
 import { ThemedText } from '@/components/ThemedText';
 
@@ -23,36 +23,24 @@ function BadgeCard({ item }: { item: Achievement }) {
 
   return (
     <View
-      style={[
-        styles.badge,
-        {
-          backgroundColor: item.unlocked ? theme.card : theme.backgroundSelected,
-          borderColor: item.unlocked ? theme.cardBorder : 'transparent',
-          opacity: item.unlocked ? 1 : 0.5,
-        },
-      ]}
+      className="w-[110] rounded-2xl border p-3.5 items-center"
+      style={{
+        backgroundColor: item.unlocked ? theme.card : theme.backgroundSelected,
+        borderColor: item.unlocked ? theme.cardBorder : 'transparent',
+        opacity: item.unlocked ? 1 : 0.5,
+      }}
     >
-      <ThemedText style={styles.badgeEmoji}>{item.emoji}</ThemedText>
-      <ThemedText style={styles.badgeTitle} numberOfLines={2}>
+      <ThemedText className="text-[32px] mb-2">{item.emoji}</ThemedText>
+      <ThemedText className="text-xs font-semibold text-center leading-4" numberOfLines={2}>
         {item.title}
       </ThemedText>
       {!item.unlocked && item.progress !== undefined && (
-        <View style={[styles.progressBg, { backgroundColor: theme.background }]}>
-          <View
-            style={[
-              styles.progressFill,
-              {
-                width: `${item.progress}%`,
-                backgroundColor: theme.primary,
-              },
-            ]}
-          />
+        <View className="w-full h-1 rounded mt-2 overflow-hidden" style={{ backgroundColor: theme.background }}>
+          <View className="h-full rounded" style={{ width: `${item.progress}%`, backgroundColor: theme.primary }} />
         </View>
       )}
       {item.unlocked && (
-        <ThemedText style={[styles.unlockedText, { color: theme.secondary }]}>
-          ✓
-        </ThemedText>
+        <ThemedText className="text-sm font-bold mt-1.5" style={{ color: theme.secondary }}>✓</ThemedText>
       )}
     </View>
   );
@@ -60,17 +48,16 @@ function BadgeCard({ item }: { item: Achievement }) {
 
 export function AchievementsCarousel() {
   return (
-    <View style={styles.section}>
-      <View style={styles.header}>
-        <ThemedText style={styles.title}>🏆 Achievements</ThemedText>
-        <ThemedText themeColor="textSecondary" style={styles.seeAll}>
-          See all
-        </ThemedText>
+    <View className="mt-6">
+      <View className="flex-row justify-between items-center px-5 mb-3">
+        <ThemedText className="text-lg font-bold">🏆 Achievements</ThemedText>
+        <ThemedText className="text-[13px]" themeColor="textSecondary">See all</ThemedText>
       </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
+        className="px-5"
+        contentContainerStyle={{ gap: 12 }}
       >
         {ACHIEVEMENTS.map((item) => (
           <BadgeCard key={item.title} item={item} />
@@ -79,60 +66,3 @@ export function AchievementsCarousel() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    marginTop: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  seeAll: {
-    fontSize: 13,
-  },
-  scroll: {
-    paddingHorizontal: 20,
-    gap: 12,
-  },
-  badge: {
-    width: 110,
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 14,
-    alignItems: 'center',
-  },
-  badgeEmoji: {
-    fontSize: 32,
-    marginBottom: 8,
-  },
-  badgeTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  progressBg: {
-    width: '100%',
-    height: 4,
-    borderRadius: 2,
-    marginTop: 8,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  unlockedText: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginTop: 6,
-  },
-});

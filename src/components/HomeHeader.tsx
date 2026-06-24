@@ -1,4 +1,4 @@
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -20,79 +20,30 @@ export function HomeHeader() {
   const theme = useTheme();
 
   return (
-    <View style={styles.container}>
-      <Pressable style={[styles.avatar, { backgroundColor: theme.primary }]}>
-        <ThemedText style={styles.avatarText}>{MOCK_USER.avatarInitial}</ThemedText>
+    <View className="flex-row items-center px-5 pt-2 pb-3 mt-[30]">
+      <Pressable
+        className="w-12 h-12 rounded-full items-center justify-center"
+        style={{ backgroundColor: theme.primary }}
+      >
+        <ThemedText className="text-xl font-bold text-white">{MOCK_USER.avatarInitial}</ThemedText>
       </Pressable>
 
-      <View style={styles.center}>
-        <ThemedText type="default" style={styles.greeting}>
+      <View className="flex-1 ml-3.5">
+        <ThemedText className="text-lg font-semibold">
           {getGreeting()}, {MOCK_USER.name}
         </ThemedText>
-        <ThemedText
-          themeColor="textSecondary"
-          style={styles.level}
-        >
+        <ThemedText className="text-[13px] mt-0.5" style={{ color: theme.textSecondary }}>
           Level {MOCK_USER.level} {MOCK_USER.title}
         </ThemedText>
       </View>
 
-      <Pressable style={styles.bellButton}>
-        <ThemedText style={styles.bellIcon}>🔔</ThemedText>
-        <View style={[styles.badge, { backgroundColor: theme.accent }]} />
+      <Pressable className="w-11 h-11 rounded-full items-center justify-center">
+        <ThemedText className="text-[22px]">🔔</ThemedText>
+        <View
+          className="absolute top-2 right-2 w-2 h-2 rounded-full"
+          style={{ backgroundColor: theme.accent }}
+        />
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 12,
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  center: {
-    flex: 1,
-    marginLeft: 14,
-  },
-  greeting: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  level: {
-    fontSize: 13,
-    marginTop: 1,
-  },
-  bellButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bellIcon: {
-    fontSize: 22,
-  },
-  badge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-});
