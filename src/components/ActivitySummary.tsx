@@ -1,31 +1,37 @@
 import { View } from 'react-native';
+import { Image } from 'expo-image';
 import { useTheme } from '@/hooks/use-theme';
 import { ThemedText } from '@/components/ThemedText';
 
 type ActivityItem = {
-  emoji: string;
+  icon: any;
   label: string;
   value: string;
   unit: string;
-  color: string;
+  tint: string;
 };
 
 const ACTIVITIES: ActivityItem[] = [
-  { emoji: '🏃', label: 'Distance', value: '3.2', unit: 'km', color: '#00D4FF' },
-  { emoji: '⏱️', label: 'Time', value: '28', unit: 'min', color: '#00FF88' },
-  { emoji: '🔥', label: 'Calories', value: '210', unit: 'kcal', color: '#FF6B35' },
-  { emoji: '👣', label: 'Steps', value: '4,200', unit: 'steps', color: '#FFD700' },
+  { icon: require('@/assets/logo/running.png'), label: 'Distance', value: '3.2', unit: 'km', tint: '#00D4FF' },
+  { icon: require('@/assets/logo/time.png'), label: 'Time', value: '28', unit: 'min', tint: '#00FF88' },
+  { icon: require('@/assets/logo/calories.png'), label: 'Calories', value: '210', unit: 'kcal', tint: '#FF6B35' },
+  { icon: require('@/assets/logo/footsteps.png'), label: 'Steps', value: '4,200', unit: 'steps', tint: '#FFD700' },
 ];
 
 function MiniCard({ item }: { item: ActivityItem }) {
   const theme = useTheme();
 
   return (
-    <View className="flex-1 rounded-2xl border p-3 items-center" style={{ backgroundColor: theme.card, borderColor: theme.cardBorder }}>
-      <ThemedText className="text-[22px] mb-1.5">{item.emoji}</ThemedText>
-      <ThemedText className="text-lg font-extrabold" style={{ color: item.color }}>{item.value}</ThemedText>
-      <ThemedText className="text-[11px] mt-0.5" style={{ color: theme.textSecondary }}>{item.unit}</ThemedText>
-      <ThemedText className="text-[11px] mt-0.5 font-medium" style={{ color: theme.textSecondary }}>{item.label}</ThemedText>
+    <View className="flex-1 rounded-2xl overflow-hidden" style={{ backgroundColor: theme.card }}>
+      <View className="h-1" style={{ backgroundColor: item.tint }} />
+      <View className="p-3 items-center">
+        <View className="w-10 h-10 rounded-xl items-center justify-center mb-2" style={{ backgroundColor: `${item.tint}18` }}>
+          <Image source={item.icon} style={{ width: 22, height: 22 }} />
+        </View>
+        <ThemedText className="text-lg font-extrabold" style={{ color: item.tint }}>{item.value}</ThemedText>
+        <ThemedText className="text-[10px] mt-0.5" style={{ color: theme.textSecondary }}>{item.unit}</ThemedText>
+        <ThemedText className="text-[10px] mt-1 font-medium" style={{ color: theme.textSecondary }}>{item.label}</ThemedText>
+      </View>
     </View>
   );
 }
@@ -36,9 +42,10 @@ export function ActivitySummary() {
 
   return (
     <View className="mt-6 px-5">
-      <View className="flex-row justify-between items-center mb-3">
-        <ThemedText className="text-lg font-bold">Today's Activity</ThemedText>
-        <ThemedText className="text-[13px]" style={{ color: theme.textSecondary }}>{today}</ThemedText>
+      <View className="flex-row items-center gap-2.5 mb-4">
+        <View className="w-1 h-5 rounded-full" style={{ backgroundColor: theme.primary }} />
+        <ThemedText className="text-lg font-bold flex-1">Today's Activity</ThemedText>
+        <ThemedText className="text-[12px]" style={{ color: theme.textSecondary }}>{today}</ThemedText>
       </View>
       <View className="flex-row gap-2.5">
         {ACTIVITIES.map((item) => (

@@ -1,4 +1,5 @@
 import { View, Pressable } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -21,12 +22,14 @@ export function HomeHeader() {
 
   return (
     <View className="flex-row items-center px-5 pt-2 pb-3 mt-[30]">
-      <Pressable
+      <LinearGradient
+        colors={['#00D4FF', '#0088FF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         className="w-12 h-12 rounded-full items-center justify-center"
-        style={{ backgroundColor: theme.primary }}
       >
         <ThemedText className="text-xl font-bold text-white">{MOCK_USER.avatarInitial}</ThemedText>
-      </Pressable>
+      </LinearGradient>
 
       <View className="flex-1 ml-3.5">
         <ThemedText className="text-lg font-semibold">
@@ -40,8 +43,8 @@ export function HomeHeader() {
       <Pressable className="w-11 h-11 rounded-full items-center justify-center">
         <ThemedText className="text-[22px]">🔔</ThemedText>
         <View
-          className="absolute top-2 right-2 w-2 h-2 rounded-full"
-          style={{ backgroundColor: theme.accent }}
+          className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full border-2"
+          style={{ backgroundColor: theme.accent, borderColor: theme.background }}
         />
       </Pressable>
     </View>
