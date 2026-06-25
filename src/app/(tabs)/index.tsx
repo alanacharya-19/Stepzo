@@ -9,7 +9,7 @@ import { AchievementsCarousel } from '@/components/AchievementsCarousel';
 import { QuickActions } from '@/components/QuickActions';
 import { ActiveChallenge } from '@/components/ActiveChallenge';
 import { WeeklySummary } from '@/components/WeeklySummary';
-import { SmartSuggestion } from '@/components/SmartSuggestion';
+
 
 export default function HomeScreen() {
   return (
