@@ -10,7 +10,6 @@ import { QuickActions } from '@/components/QuickActions';
 import { ActiveChallenge } from '@/components/ActiveChallenge';
 import { WeeklySummary } from '@/components/WeeklySummary';
 
-
 export default function HomeScreen() {
   return (
     <ThemedView className="flex-1">
@@ -30,7 +29,6 @@ export default function HomeScreen() {
         <QuickActions />
         <ActiveChallenge />
         <WeeklySummary />
-        <SmartSuggestion />
 
         <ThemedText
           className="text-center text-xs mt-8 mb-2"
