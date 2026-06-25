@@ -25,9 +25,16 @@ export function ActiveChallenge() {
         end={{ x: 1, y: 1 }}
         className="p-5"
       >
-        <View className="flex-row items-center gap-2.5 mb-4">
-          <View className="w-1 h-5 rounded-full" style={{ backgroundColor: theme.warning }} />
-          <ThemedText className="text-lg font-bold flex-1">🔥 {MOCK.title}</ThemedText>
+        <View className="flex-row items-start">
+          <View className="flex-row items-center flex-1 gap-3">
+            <ThemedText className="text-2xl">🔥</ThemedText>
+            <View>
+              <ThemedText className="text-base font-bold">{MOCK.title}</ThemedText>
+              <ThemedText className="text-[13px] mt-0.5" style={{ color: theme.textSecondary }}>
+                {MOCK.description}
+              </ThemedText>
+            </View>
+          </View>
           <View className="rounded-xl px-3 py-1.5" style={{ backgroundColor: 'rgba(255,215,0,0.12)' }}>
             <ThemedText className="text-[12px] font-bold" style={{ color: theme.warning }}>
               {MOCK.reward}
@@ -35,20 +42,16 @@ export function ActiveChallenge() {
           </View>
         </View>
 
-        <ThemedText className="text-sm" style={{ color: theme.textSecondary }}>
-          {MOCK.description}
-        </ThemedText>
-
         <View className="mt-4">
-          <View className="flex-row items-baseline gap-1.5 mb-3">
-            <ThemedText className="text-2xl font-extrabold" style={{ color: theme.primary }}>
-              {MOCK.current}
+          <View className="flex-row items-baseline gap-1 mb-2.5">
+            <ThemedText className="text-xl font-extrabold" style={{ color: theme.primary }}>
+              {MOCK.current}/{MOCK.target}
             </ThemedText>
-            <ThemedText className="text-sm" style={{ color: theme.textSecondary }}>
-              / {MOCK.target} {MOCK.unit}
+            <ThemedText className="text-[13px]" style={{ color: theme.textSecondary }}>
+              {MOCK.unit}
             </ThemedText>
           </View>
-          <View className="h-2.5 rounded-full overflow-hidden" style={{ backgroundColor: theme.backgroundSelected }}>
+          <View className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: theme.backgroundSelected }}>
             <LinearGradient
               colors={['#00D4FF', '#0088FF']}
               start={{ x: 0, y: 0 }}
@@ -56,10 +59,6 @@ export function ActiveChallenge() {
               className="h-full rounded-full"
               style={{ width: `${percent}%` }}
             />
-          </View>
-          <View className="flex-row justify-between mt-1.5">
-            <ThemedText className="text-[11px]" style={{ color: theme.textSecondary }}>Progress</ThemedText>
-            <ThemedText className="text-[11px] font-bold" style={{ color: theme.primary }}>{percent}%</ThemedText>
           </View>
         </View>
       </LinearGradient>

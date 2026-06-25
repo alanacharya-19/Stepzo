@@ -22,14 +22,9 @@ export function HomeHeader() {
 
   return (
     <View className="flex-row items-center px-5 pt-2 pb-3 mt-[30]">
-      <LinearGradient
-        colors={['#00D4FF', '#0088FF']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="w-12 h-12 rounded-full items-center justify-center"
-      >
+      <View className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: theme.primary }}>
         <ThemedText className="text-xl font-bold text-white">{MOCK_USER.avatarInitial}</ThemedText>
-      </LinearGradient>
+      </View>
 
       <View className="flex-1 ml-3.5">
         <ThemedText className="text-lg font-semibold">

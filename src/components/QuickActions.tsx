@@ -19,31 +19,6 @@ const ACTIONS: Action[] = [
   { emoji: '📊', label: 'Stats', color: '#FFD700' },
 ];
 
-function PrimaryButton({ item }: { item: Action }) {
-  return (
-    <LinearGradient
-      colors={['#00D4FF', '#0088FF']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-      className="flex-[2] rounded-2xl p-4 flex-row items-center justify-center gap-2.5"
-    >
-      <Image source={item.icon!} style={{ width: 24, height: 24 }} />
-      <ThemedText className="text-base font-bold text-white">{item.label}</ThemedText>
-    </LinearGradient>
-  );
-}
-
-function SecondaryButton({ item }: { item: Action }) {
-  const theme = useTheme();
-
-  return (
-    <View className="flex-1 rounded-2xl border items-center justify-center p-3 gap-1" style={{ backgroundColor: theme.backgroundSelected, borderColor: theme.cardBorder }}>
-      <ThemedText className="text-xl">{item.emoji}</ThemedText>
-      <ThemedText className="text-[11px] font-semibold" style={{ color: theme.text }}>{item.label}</ThemedText>
-    </View>
-  );
-}
-
 export function QuickActions() {
   const theme = useTheme();
 
@@ -54,13 +29,29 @@ export function QuickActions() {
         <ThemedText className="text-lg font-bold">Quick Actions</ThemedText>
       </View>
       <View className="flex-row gap-2.5">
-        {ACTIONS.map((item) =>
+        {ACTIONS.map((item) => (
           item.primary ? (
-            <PrimaryButton key={item.label} item={item} />
+            <LinearGradient
+              key={item.label}
+              colors={['#00D4FF', '#0088FF']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="flex-1 rounded-2xl py-4 items-center gap-1.5"
+            >
+              <Image source={item.icon!} style={{ width: 24, height: 24 }} />
+              <ThemedText className="text-[12px] font-bold text-white">{item.label}</ThemedText>
+            </LinearGradient>
           ) : (
-            <SecondaryButton key={item.label} item={item} />
+            <Pressable
+              key={item.label}
+              className="flex-1 rounded-2xl border py-4 items-center gap-1.5"
+              style={{ backgroundColor: theme.backgroundSelected, borderColor: theme.cardBorder }}
+            >
+              <ThemedText className="text-xl">{item.emoji}</ThemedText>
+              <ThemedText className="text-[12px] font-semibold" style={{ color: theme.text }}>{item.label}</ThemedText>
+            </Pressable>
           )
-        )}
+        ))}
       </View>
     </View>
   );
