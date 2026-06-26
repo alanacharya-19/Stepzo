@@ -26,7 +26,7 @@ function ThisWeekCard() {
       <View className="flex-row px-3 pb-5">
         {stats.map((s) => (
           <View key={s.label} className="flex-1 items-center py-3">
-            <ThemedText className="text-xl font-extrabold" style={{ color: s.color }}>{s.value}</ThemedText>
+            <ThemedText className="text-xl font-extrabold text-white">{s.value}</ThemedText>
             <ThemedText className="text-[10px] mt-0.5" style={{ color: theme.textSecondary }}>{s.unit}</ThemedText>
             <ThemedText className="text-[11px] mt-1 font-medium" style={{ color: theme.textSecondary }}>{s.label}</ThemedText>
           </View>
@@ -71,14 +71,18 @@ function ConcentricRings({ rings }: { rings: { color: string; progress: number }
   );
 }
 
+const footstepsPng = require('@/assets/logo/footsteps.png');
+const timePng = require('@/assets/logo/time.png');
+const caloriesPng = require('@/assets/logo/calories.png');
+
 function ActivityRingsCard() {
   const theme = useTheme();
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   const rings = [
-    { label: 'Steps', value: '6,420', goal: '10,000', unit: 'steps', progress: 6420 / 10000, color: '#B7FF3C' },
-    { label: 'Active Time', value: '28', goal: '45', unit: 'min', progress: 28 / 45, color: '#007AFF' },
-    { label: 'Calories', value: '340', goal: '500', unit: 'kcal', progress: 340 / 500, color: '#FF7A00' },
+    { label: 'Steps', value: '6,420', goal: '10,000', unit: 'steps', progress: 6420 / 10000, color: '#B7FF3C', icon: footstepsPng },
+    { label: 'Active Time', value: '28', goal: '45', unit: 'min', progress: 28 / 45, color: '#007AFF', icon: timePng },
+    { label: 'Calories', value: '340', goal: '500', unit: 'kcal', progress: 340 / 500, color: '#FF7A00', icon: caloriesPng },
   ];
 
   return (
@@ -97,13 +101,12 @@ function ActivityRingsCard() {
         <View className="flex-1 gap-3.5">
           {rings.map((r) => (
             <View key={r.label} className="flex-row items-center">
-              <View className="w-3 h-3 rounded-full mr-3" style={{ backgroundColor: r.color }} />
+              <View className="w-10 h-10 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${r.color}18` }}>
+                <Image source={r.icon} style={{ width: 24, height: 24 }} />
+              </View>
               <View className="flex-1">
-                <View className="flex-row items-center justify-between">
-                  <ThemedText className="text-[13px] font-semibold">{r.label}</ThemedText>
-                  <ThemedText className="text-[14px] font-bold" style={{ color: r.color }}>{r.value}</ThemedText>
-                </View>
-                <ThemedText className="text-[11px] mt-0.5" style={{ color: theme.textSecondary }}>of {r.goal} {r.unit}</ThemedText>
+                <ThemedText className="text-[13px] font-semibold">{r.label}</ThemedText>
+                <ThemedText className="text-[10px] mt-0.5" style={{ color: theme.textSecondary }}>{r.value} / {r.goal} {r.unit}</ThemedText>
               </View>
             </View>
           ))}
@@ -114,8 +117,8 @@ function ActivityRingsCard() {
 }
 
 const RECENT_ACTIVITIES = [
-  { title: 'Morning Run', type: 'run', distance: '5.2', time: '28', date: 'today' },
-  { title: 'Evening Walk', type: 'walk', distance: '3.8', time: '20', date: 'yesterday' },
+  { title: 'Morning Run', type: 'run', distance: '5.2', time: '28', date: 'Today' },
+  { title: 'Evening Walk', type: 'walk', distance: '3.8', time: '20', date: 'Yesterday' },
   { title: 'Afternoon Run', type: 'run', distance: '6.1', time: '33', date: 'Jun 23' },
   { title: 'Night Walk', type: 'walk', distance: '2.4', time: '15', date: 'Jun 21' },
 ];
@@ -149,13 +152,13 @@ function RecentActivities() {
             style={{ borderBottomWidth: i < RECENT_ACTIVITIES.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.04)' }}
           >
             <View className="w-10 h-10 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${meta.color}18` }}>
-              <Image source={meta.source} style={{ width: 22, height: 22, tintColor: meta.color }} />
+              <Image source={meta.source} style={{ width: 22, height: 22 }} />
             </View>
             <View className="flex-1">
               <ThemedText className="text-[15px] font-semibold">{a.title}</ThemedText>
               <View className="flex-row items-center gap-3 mt-0.5">
-                <ThemedText className="text-[12px] font-medium" style={{ color: '#3B82F6' }}>{a.distance} km</ThemedText>
-                <ThemedText className="text-[12px] font-medium" style={{ color: '#A855F7' }}>{a.time} min</ThemedText>
+                <ThemedText className="text-[12px] font-medium" themeColor="textSecondary">{a.distance} km</ThemedText>
+                <ThemedText className="text-[12px] font-medium" themeColor="textSecondary">{a.time} min</ThemedText>
               </View>
             </View>
             <ThemedText className="text-[12px]" style={{ color: theme.textSecondary }}>{a.date}</ThemedText>
