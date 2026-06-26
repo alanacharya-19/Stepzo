@@ -1,21 +1,11 @@
 import { View, Pressable } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
 
 const MOCK_USER = {
   name: 'Alan',
-  level: 7,
-  title: 'Runner',
   avatarInitial: 'A',
 };
-
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 export function HomeHeader() {
   const theme = useTheme();
@@ -28,10 +18,10 @@ export function HomeHeader() {
 
       <View className="flex-1 ml-3.5">
         <ThemedText className="text-lg font-semibold">
-          {getGreeting()}, {MOCK_USER.name}
+          Hello, {MOCK_USER.name}
         </ThemedText>
         <ThemedText className="text-[13px] mt-0.5" style={{ color: theme.textSecondary }}>
-          Level {MOCK_USER.level} {MOCK_USER.title}
+          Ready to crush your goals?
         </ThemedText>
       </View>
 

@@ -3,6 +3,9 @@ import { Text, View, Pressable, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const ONBOARDING_KEY = "@stepzo_onboarding_done";
 
 const SLIDES = [
   { key: "gender", emoji: "👤", title: "What's your gender?", subtitle: "We'll personalize your running experience" },
@@ -38,7 +41,11 @@ export default function OnboardingScreen() {
   const isLast = step === SLIDES.length - 1;
   const isGender = current.key === "gender";
 
-  const goHome = () => router.replace("/(tabs)");
+  const goHome = () => {
+    AsyncStorage.setItem(ONBOARDING_KEY, "true").then(() => {
+      router.replace("/(tabs)");
+    });
+  };
   const goNext = () => {
     if (isLast) { goHome(); }
     else { setStep((s) => s + 1); }
