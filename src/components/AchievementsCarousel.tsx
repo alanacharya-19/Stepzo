@@ -26,8 +26,8 @@ function BadgeCard({ item }: { item: Achievement }) {
     <View
       className="w-[108] rounded-2xl border p-3.5 items-center"
       style={{
-        backgroundColor: item.unlocked ? theme.card : theme.backgroundSelected,
-        borderColor: item.unlocked ? theme.cardBorder : 'transparent',
+        backgroundColor: item.unlocked ? theme.card : theme.backgroundTertiary,
+        borderColor: item.unlocked ? theme.border : 'transparent',
         opacity: item.unlocked ? 1 : 0.5,
       }}
     >

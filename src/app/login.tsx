@@ -54,7 +54,7 @@ export default function LoginScreen() {
         <Text
           style={{
             fontSize: 14,
-            color: "#888",
+            color: "#7D8799",
             letterSpacing: 0.5,
           }}
         >
@@ -63,7 +63,7 @@ export default function LoginScreen() {
         <Text
           style={{
             fontSize: 14,
-            color: "#888",
+            color: "#7D8799",
             marginTop: 4,
             letterSpacing: 0.5,
           }}
@@ -88,7 +88,7 @@ export default function LoginScreen() {
             alignItems: "center",
             justifyContent: "center",
           }}
-          onPress={() => router.replace("/(tabs)")}
+          onPress={() => router.replace("/onboarding")}
         >
           <Text style={{ fontSize: 17, fontWeight: "700", color: "#000" }}>
             Get Started

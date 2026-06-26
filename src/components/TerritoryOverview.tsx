@@ -20,7 +20,7 @@ function MiniMap() {
   const theme = useTheme();
 
   return (
-    <View className="w-[108] h-[108] gap-[2] p-1.5 rounded-xl" style={{ backgroundColor: theme.backgroundSelected }}>
+    <View className="w-[108] h-[108] gap-[2] p-1.5 rounded-xl" style={{ backgroundColor: theme.backgroundTertiary }}>
       {MOCK.zones.map((row, ri) => (
         <View key={ri} className="flex-row gap-[2] flex-1">
           {row.map((cell, ci) => (
@@ -45,7 +45,7 @@ export function TerritoryOverview() {
   return (
     <Pressable className="mx-5 mt-6 rounded-3xl overflow-hidden" style={{ backgroundColor: theme.card }}>
       <LinearGradient
-        colors={['rgba(0,212,255,0.06)', 'transparent']}
+        colors={['rgba(183,255,60,0.08)', 'transparent']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="p-5"

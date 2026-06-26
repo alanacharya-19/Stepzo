@@ -13,8 +13,8 @@ type Action = {
 };
 
 const ACTIONS: Action[] = [
-  { icon: require('@/assets/logo/running.png'), emoji: '🏃', label: 'Start Run', color: '#00D4FF', primary: true },
-  { emoji: '🗺️', label: 'View Map', color: '#00FF88' },
+  { icon: require('@/assets/logo/running.png'), emoji: '🏃', label: 'Start Run', color: '#B7FF3C', primary: true },
+  { emoji: '🗺️', label: 'View Map', color: '#3B82F6' },
   { emoji: '🏆', label: 'Leaderboard', color: '#FF6B35' },
   { emoji: '📊', label: 'Stats', color: '#FFD700' },
 ];
@@ -33,7 +33,7 @@ export function QuickActions() {
           item.primary ? (
             <LinearGradient
               key={item.label}
-              colors={['#00D4FF', '#0088FF']}
+              colors={['#D8FF5A', '#B7FF3C', '#8FD600']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               className="flex-1 rounded-2xl py-4 items-center gap-1.5"
@@ -45,7 +45,7 @@ export function QuickActions() {
             <Pressable
               key={item.label}
               className="flex-1 rounded-2xl border py-4 items-center gap-1.5"
-              style={{ backgroundColor: theme.backgroundSelected, borderColor: theme.cardBorder }}
+              style={{ backgroundColor: theme.backgroundTertiary, borderColor: theme.border }}
             >
               <ThemedText className="text-xl">{item.emoji}</ThemedText>
               <ThemedText className="text-[12px] font-semibold" style={{ color: theme.text }}>{item.label}</ThemedText>

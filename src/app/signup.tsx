@@ -20,7 +20,7 @@ export default function SignupScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSignup = () => {
-    router.replace('/(tabs)');
+    router.replace('/onboarding');
   };
 
   return (
@@ -60,8 +60,8 @@ export default function SignupScreen() {
               <TextInput
                 className="h-[52] rounded-xl border px-4 text-base"
                 style={{
-                  backgroundColor: theme.backgroundElement,
-                  borderColor: theme.cardBorder,
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.inputBorder,
                   color: theme.text,
                 }}
                 placeholder="Enter your name"
@@ -79,8 +79,8 @@ export default function SignupScreen() {
               <TextInput
                 className="h-[52] rounded-xl border px-4 text-base"
                 style={{
-                  backgroundColor: theme.backgroundElement,
-                  borderColor: theme.cardBorder,
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.inputBorder,
                   color: theme.text,
                 }}
                 placeholder="Enter your email"
@@ -99,8 +99,8 @@ export default function SignupScreen() {
               <TextInput
                 className="h-[52] rounded-xl border px-4 text-base"
                 style={{
-                  backgroundColor: theme.backgroundElement,
-                  borderColor: theme.cardBorder,
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.inputBorder,
                   color: theme.text,
                 }}
                 placeholder="Create a password"
@@ -118,8 +118,8 @@ export default function SignupScreen() {
               <TextInput
                 className="h-[52] rounded-xl border px-4 text-base"
                 style={{
-                  backgroundColor: theme.backgroundElement,
-                  borderColor: theme.cardBorder,
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.inputBorder,
                   color: theme.text,
                 }}
                 placeholder="Confirm your password"
@@ -139,18 +139,18 @@ export default function SignupScreen() {
             </Pressable>
 
             <View className="flex-row items-center mt-6 mb-5">
-              <View className="flex-1 h-[1px]" style={{ backgroundColor: theme.cardBorder }} />
+              <View className="flex-1 h-[1px]" style={{ backgroundColor: theme.inputBorder }} />
               <ThemedText className="text-[13px] mx-3.5" style={{ color: theme.textSecondary }}>
                 or continue with
               </ThemedText>
-              <View className="flex-1 h-[1px]" style={{ backgroundColor: theme.cardBorder }} />
+              <View className="flex-1 h-[1px]" style={{ backgroundColor: theme.inputBorder }} />
             </View>
 
             <Pressable
               className="h-[52] rounded-xl border flex-row items-center justify-center gap-2.5"
               style={{
-                backgroundColor: theme.backgroundElement,
-                borderColor: theme.cardBorder,
+                backgroundColor: theme.inputBackground,
+                borderColor: theme.inputBorder,
               }}
             >
               <ThemedText className="text-xl font-extrabold text-white">G</ThemedText>

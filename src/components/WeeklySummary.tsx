@@ -34,7 +34,7 @@ function Bar({ item, maxVal, index }: { item: DayData; maxVal: number; index: nu
         )}
         {isToday && item.value > 0 ? (
           <LinearGradient
-            colors={['#00D4FF', '#0088FF']}
+            colors={['#D8FF5A', '#B7FF3C']}
             start={{ x: 0, y: 1 }}
             end={{ x: 0, y: 0 }}
             className="w-[70%] rounded-t-md rounded-b-sm"
@@ -45,7 +45,7 @@ function Bar({ item, maxVal, index }: { item: DayData; maxVal: number; index: nu
             className="w-[70%] rounded-t-md rounded-b-sm"
             style={{
               height: `${Math.max(barHeight, 2)}%`,
-              backgroundColor: theme.backgroundSelected,
+              backgroundColor: theme.backgroundTertiary,
               opacity: item.value > 0 ? 0.8 : 0.2,
             }}
           />

@@ -19,14 +19,14 @@ export function UserProgressCard() {
   return (
     <View className="mx-5 mt-2 rounded-3xl overflow-hidden" style={{ backgroundColor: theme.card }}>
       <LinearGradient
-        colors={['rgba(0,212,255,0.08)', 'transparent']}
+        colors={['rgba(183,255,60,0.08)', 'transparent']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="px-5 pt-5 pb-4"
       >
         <View className="flex-row items-center">
           <LinearGradient
-            colors={['#00D4FF', '#0088FF']}
+            colors={['#D8FF5A', '#B7FF3C']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             className="w-14 h-14 rounded-2xl items-center justify-center"
@@ -39,7 +39,7 @@ export function UserProgressCard() {
               {percent}% to Level {MOCK.level + 1}
             </ThemedText>
           </View>
-          <View className="rounded-2xl px-3.5 py-2 items-center" style={{ backgroundColor: 'rgba(0,212,255,0.1)' }}>
+          <View className="rounded-2xl px-3.5 py-2 items-center" style={{ backgroundColor: 'rgba(183,255,60,0.12)' }}>
             <ThemedText className="text-base font-extrabold" style={{ color: theme.primary }}>
               #{MOCK.rank}
             </ThemedText>
@@ -52,9 +52,9 @@ export function UserProgressCard() {
 
       <View className="px-5 pb-5">
         <View className="mt-2">
-          <View className="h-2.5 rounded-full overflow-hidden" style={{ backgroundColor: theme.backgroundSelected }}>
+          <View className="h-2.5 rounded-full overflow-hidden" style={{ backgroundColor: theme.divider }}>
             <LinearGradient
-              colors={['#00D4FF', '#0088FF']}
+              colors={['#B7FF3C', '#8FD600']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               className="h-full rounded-full"

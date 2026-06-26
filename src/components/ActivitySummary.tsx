@@ -12,10 +12,10 @@ type ActivityItem = {
 };
 
 const ACTIVITIES: ActivityItem[] = [
-  { icon: require('@/assets/logo/running.png'), label: 'Distance', value: '3.2', unit: 'km', tint: '#00D4FF' },
-  { icon: require('@/assets/logo/time.png'), label: 'Time', value: '28', unit: 'min', tint: '#00FF88' },
-  { icon: require('@/assets/logo/calories.png'), label: 'Calories', value: '210', unit: 'kcal', tint: '#FF6B35' },
-  { icon: require('@/assets/logo/footsteps.png'), label: 'Steps', value: '4,200', unit: 'steps', tint: '#FFD700' },
+  { icon: require('@/assets/logo/running.png'), label: 'Distance', value: '3.2', unit: 'km', tint: '#3B82F6' },
+  { icon: require('@/assets/logo/time.png'), label: 'Time', value: '28', unit: 'min', tint: '#A855F7' },
+  { icon: require('@/assets/logo/calories.png'), label: 'Calories', value: '210', unit: 'kcal', tint: '#FF7A00' },
+  { icon: require('@/assets/logo/footsteps.png'), label: 'Steps', value: '4,200', unit: 'steps', tint: '#B7FF3C' },
 ];
 
 function MiniCard({ item }: { item: ActivityItem }) {

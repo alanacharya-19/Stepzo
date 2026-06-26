@@ -20,7 +20,7 @@ export function ActiveChallenge() {
   return (
     <View className="mx-5 mt-6 rounded-3xl overflow-hidden" style={{ backgroundColor: theme.card }}>
       <LinearGradient
-        colors={['rgba(255,215,0,0.06)', 'transparent']}
+        colors={['rgba(245,158,11,0.06)', 'transparent']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="p-5"
@@ -35,7 +35,7 @@ export function ActiveChallenge() {
               </ThemedText>
             </View>
           </View>
-          <View className="rounded-xl px-3 py-1.5" style={{ backgroundColor: 'rgba(255,215,0,0.12)' }}>
+          <View className="rounded-xl px-3 py-1.5" style={{ backgroundColor: 'rgba(245,158,11,0.12)' }}>
             <ThemedText className="text-[12px] font-bold" style={{ color: theme.warning }}>
               {MOCK.reward}
             </ThemedText>
@@ -51,9 +51,9 @@ export function ActiveChallenge() {
               {MOCK.unit}
             </ThemedText>
           </View>
-          <View className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: theme.backgroundSelected }}>
+          <View className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: theme.divider }}>
             <LinearGradient
-              colors={['#00D4FF', '#0088FF']}
+              colors={['#B7FF3C', '#8FD600']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               className="h-full rounded-full"
