@@ -16,13 +16,15 @@ export default function LeaderboardScreen() {
   const theme = useTheme();
 
   return (
-    <ThemedView className="flex-1 px-5 pt-16">
-      <ThemedText className="text-2xl font-bold text-center mb-1">Leaderboard</ThemedText>
-      <ThemedText className="text-sm text-center mb-6" style={{ color: theme.textSecondary }}>Top runners this month</ThemedText>
-      <View className="rounded-3xl overflow-hidden" style={{ backgroundColor: theme.card }}>
+    <ThemedView className="flex-1 px-6 pt-16">
+      <View className="items-center mb-8">
+        <ThemedText className="text-[28px] font-bold tracking-tight">Leaderboard</ThemedText>
+        <ThemedText className="text-[13px] mt-1.5" style={{ color: theme.textSecondary }}>Top runners this month</ThemedText>
+      </View>
+      <View className="rounded-2xl overflow-hidden" style={{ backgroundColor: theme.card }}>
         {LEADERS.map((p, i) => (
-          <View key={p.name} className="flex-row items-center px-5 py-3.5" style={{ borderBottomWidth: i < LEADERS.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.04)' }}>
-            <View className="w-8 h-8 rounded-full items-center justify-center mr-3" style={{ backgroundColor: p.badge !== 'transparent' ? `${p.badge}30` : 'rgba(255,255,255,0.04)' }}>
+          <View key={p.name} className="flex-row items-center px-5 py-4" style={{ borderBottomWidth: i < LEADERS.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
+            <View className="w-8 h-8 rounded-full items-center justify-center mr-3.5" style={{ backgroundColor: p.badge !== 'transparent' ? `${p.badge}25` : 'rgba(255,255,255,0.04)' }}>
               <ThemedText className="text-sm font-bold" style={{ color: p.badge !== 'transparent' ? p.badge : theme.textSecondary }}>{p.rank}</ThemedText>
             </View>
             <View className="flex-1">
@@ -30,7 +32,7 @@ export default function LeaderboardScreen() {
               <ThemedText className="text-[11px] mt-0.5" style={{ color: theme.textSecondary }}>{p.runs} runs · {p.km} km</ThemedText>
             </View>
             {p.badge === '#B7FF3C' && (
-              <View className="px-3 py-1 rounded-lg" style={{ backgroundColor: `${theme.primary}20` }}>
+              <View className="px-3 py-1 rounded-lg" style={{ backgroundColor: `${theme.primary}18` }}>
                 <ThemedText className="text-[11px] font-bold" style={{ color: theme.primary }}>You</ThemedText>
               </View>
             )}
