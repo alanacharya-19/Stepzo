@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { View, ScrollView, Pressable, Dimensions } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { View, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import MapView, { Polyline } from 'react-native-maps';
+import ViewShot from 'react-native-view-shot';
+import * as Sharing from 'expo-sharing';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
 import { loadRuns } from '@/utils/storage';
 import type { RunData, RunPoint } from '@/types';
-
-const { width: W } = Dimensions.get('window');
 
 function haversine(c1: { lat: number; lng: number }, c2: { lat: number; lng: number }) {
   const R = 6371000;
@@ -49,6 +49,7 @@ export default function RunDetailScreen() {
   const theme = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [run, setRun] = useState<RunData | null>(null);
+  const shotRef = useRef<ViewShot>(null);
 
   useEffect(() => {
     loadRuns().then((runs) => {
@@ -56,6 +57,16 @@ export default function RunDetailScreen() {
       if (found) setRun(found);
     });
   }, [id]);
+
+  const handleShare = async () => {
+    if (!shotRef.current) return;
+    try {
+      const uri = await (shotRef.current as any).capture?.();
+      if (uri && (await Sharing.isAvailableAsync())) {
+        await Sharing.shareAsync(uri, { mimeType: 'image/png' });
+      }
+    } catch {}
+  };
 
   if (!run) {
     return (
@@ -70,7 +81,6 @@ export default function RunDetailScreen() {
   const lngSum = run.coords.reduce((s, c) => s + c.longitude, 0);
   const avgLat = latSum / run.coords.length;
   const avgLng = lngSum / run.coords.length;
-
   const splits = calcSplits(run.coords);
 
   return (
@@ -78,12 +88,7 @@ export default function RunDetailScreen() {
       <View style={{ height: 300 }}>
         <MapView
           style={{ flex: 1 }}
-          initialRegion={{
-            latitude: avgLat,
-            longitude: avgLng,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
+          initialRegion={{ latitude: avgLat, longitude: avgLng, latitudeDelta: 0.01, longitudeDelta: 0.01 }}
           scrollEnabled={false}
           zoomEnabled={false}
           userInterfaceStyle="dark"
@@ -98,43 +103,50 @@ export default function RunDetailScreen() {
       </View>
 
       <ScrollView className="flex-1 px-6 pt-5" showsVerticalScrollIndicator={false}>
-        <View className="flex-row items-center mb-1">
-          <ThemedText className="text-[20px] font-bold flex-1">{run.title}</ThemedText>
-        </View>
-        <ThemedText className="text-[13px] mb-5" style={{ color: theme.textSecondary }}>{run.date}</ThemedText>
+        <ViewShot ref={shotRef} options={{ format: 'png', quality: 1 }} style={{ flex: 1 }}>
+          <View className="flex-row items-center mb-1">
+            <ThemedText className="text-[20px] font-bold flex-1">{run.title}</ThemedText>
+          </View>
+          <ThemedText className="text-[13px] mb-5" style={{ color: theme.textSecondary }}>{run.date}</ThemedText>
 
-        <View className="flex-row rounded-2xl py-4 px-3" style={{ backgroundColor: theme.card }}>
-          {[
-            { label: 'Distance', value: `${run.distance.toFixed(2)} km` },
-            { label: 'Duration', value: fmtTime(run.duration) },
-            { label: 'Avg Pace', value: `${Math.floor(60 / (run.pace || 1))}:${(Math.floor((60 / (run.pace || 1)) % 1 * 60)).toString().padStart(2, '0')}` },
-          ].map((s, i) => (
-            <View key={s.label} className="flex-1 items-center" style={{ borderRightWidth: i < 2 ? 1 : 0, borderRightColor: 'rgba(255,255,255,0.06)' }}>
-              <ThemedText className="text-[10px] mb-1.5" style={{ color: theme.textSecondary }}>{s.label}</ThemedText>
-              <ThemedText className="text-[14px] font-bold text-white">{s.value}</ThemedText>
-            </View>
-          ))}
-        </View>
-
-        {splits.length > 0 && (
-          <View className="mt-5 rounded-2xl overflow-hidden" style={{ backgroundColor: theme.card }}>
-            <View className="px-5 pt-4 pb-2">
-              <ThemedText className="text-[15px] font-bold">Splits</ThemedText>
-            </View>
-            {splits.map((s, i) => (
-              <View key={i} className="flex-row items-center px-5 py-3" style={{ borderBottomWidth: i < splits.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
-                <View className="w-8 h-8 rounded-full items-center justify-center mr-3" style={{ backgroundColor: `${theme.primary}12` }}>
-                  <ThemedText className="text-[11px] font-bold" style={{ color: theme.primary }}>{s.km}</ThemedText>
-                </View>
-                <View className="flex-1">
-                  <ThemedText className="text-[13px] font-semibold">Kilometer {s.km}</ThemedText>
-                  <ThemedText className="text-[10px]" style={{ color: theme.textSecondary }}>{fmtTime(s.time)}</ThemedText>
-                </View>
-                <ThemedText className="text-[13px] font-semibold">{Math.floor(s.pace)}:{Math.floor((s.pace % 1) * 60).toString().padStart(2, '0')} /km</ThemedText>
+          <View className="flex-row rounded-2xl py-4 px-3" style={{ backgroundColor: theme.card }}>
+            {[
+              { label: 'Distance', value: `${run.distance.toFixed(2)} km` },
+              { label: 'Duration', value: fmtTime(run.duration) },
+              { label: 'Avg Pace', value: `${Math.floor(60 / (run.pace || 1))}:${(Math.floor((60 / (run.pace || 1)) % 1 * 60)).toString().padStart(2, '0')}` },
+            ].map((s, i) => (
+              <View key={s.label} className="flex-1 items-center" style={{ borderRightWidth: i < 2 ? 1 : 0, borderRightColor: 'rgba(255,255,255,0.06)' }}>
+                <ThemedText className="text-[10px] mb-1.5" style={{ color: theme.textSecondary }}>{s.label}</ThemedText>
+                <ThemedText className="text-[14px] font-bold text-white">{s.value}</ThemedText>
               </View>
             ))}
           </View>
-        )}
+
+          {splits.length > 0 && (
+            <View className="mt-5 rounded-2xl overflow-hidden" style={{ backgroundColor: theme.card }}>
+              <View className="px-5 pt-4 pb-2">
+                <ThemedText className="text-[15px] font-bold">Splits</ThemedText>
+              </View>
+              {splits.map((s, i) => (
+                <View key={i} className="flex-row items-center px-5 py-3" style={{ borderBottomWidth: i < splits.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
+                  <View className="w-8 h-8 rounded-full items-center justify-center mr-3" style={{ backgroundColor: `${theme.primary}12` }}>
+                    <ThemedText className="text-[11px] font-bold" style={{ color: theme.primary }}>{s.km}</ThemedText>
+                  </View>
+                  <View className="flex-1">
+                    <ThemedText className="text-[13px] font-semibold">Kilometer {s.km}</ThemedText>
+                    <ThemedText className="text-[10px]" style={{ color: theme.textSecondary }}>{fmtTime(s.time)}</ThemedText>
+                  </View>
+                  <ThemedText className="text-[13px] font-semibold">{Math.floor(s.pace)}:{Math.floor((s.pace % 1) * 60).toString().padStart(2, '0')} /km</ThemedText>
+                </View>
+              ))}
+            </View>
+          )}
+        </ViewShot>
+
+        <Pressable onPress={handleShare} className="mt-5 flex-row items-center justify-center gap-2 rounded-2xl py-3.5" style={{ backgroundColor: theme.card }}>
+          <Ionicons name="share-outline" size={18} color={theme.primary} />
+          <ThemedText className="text-[14px] font-semibold" style={{ color: theme.primary }}>Share Run</ThemedText>
+        </Pressable>
 
         <View className="h-8" />
       </ScrollView>

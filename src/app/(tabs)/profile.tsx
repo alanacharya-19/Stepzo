@@ -18,11 +18,12 @@ const U = { n: 'Alan', a: 'A', e: 'alan@email.com' };
 const lm: Record<string, string> = { gender: 'Gender', age: 'Age', height: 'Height', weight: 'Weight', frequency: 'Running Frequency', place: 'Terrain' };
 
 const menu = [
-  { l: 'Account', i: 'person-outline', c: '#3B82F6' },
-  { l: 'Notifications', i: 'notifications-outline', c: '#A855F7' },
-  { l: 'Privacy', i: 'lock-closed-outline', c: '#FF7A00' },
-  { l: 'Help & Support', i: 'help-circle-outline', c: '#0EA5E9' },
-  { l: 'About', i: 'information-circle-outline', c: '#8B5CF6' },
+  { l: 'Analytics', i: 'bar-chart-outline', c: '#B7FF3C', action: 'analytics' },
+  { l: 'Account', i: 'person-outline', c: '#3B82F6', action: '' },
+  { l: 'Notifications', i: 'notifications-outline', c: '#A855F7', action: '' },
+  { l: 'Privacy', i: 'lock-closed-outline', c: '#FF7A00', action: '' },
+  { l: 'Help & Support', i: 'help-circle-outline', c: '#0EA5E9', action: '' },
+  { l: 'About', i: 'information-circle-outline', c: '#8B5CF6', action: '' },
 ];
 
 function fmtPace(kmh: number) {
@@ -165,7 +166,7 @@ export default function ProfileScreen() {
         {/* Menu */}
         <View className="mx-6 mt-4 rounded-2xl overflow-hidden" style={{ backgroundColor: t.card }}>
           {menu.map((item, i) => (
-            <Pressable key={item.l} className="flex-row items-center px-5 py-3.5" style={{ borderBottomWidth: i < menu.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
+            <Pressable key={item.l} onPress={() => { if (item.action === 'analytics') router.push('/charts'); }} className="flex-row items-center px-5 py-3.5" style={{ borderBottomWidth: i < menu.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
               <View className="w-8 h-8 rounded-xl items-center justify-center" style={{ backgroundColor: `${item.c}15` }}>
                 <Ionicons name={item.i as any} size={16} color={item.c} />
               </View>
