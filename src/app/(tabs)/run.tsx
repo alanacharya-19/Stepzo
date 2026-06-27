@@ -7,6 +7,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
+import type { RunPoint, RunData } from '@/types';
+import { saveRun } from '@/utils/storage';
 
 function haversine(c1: { lat: number; lng: number }, c2: { lat: number; lng: number }) {
   const R = 6371000;
@@ -41,8 +43,10 @@ export default function RunScreen() {
   const distRef = useRef(0);
   const prevRef = useRef<{ lat: number; lng: number } | null>(null);
 
+  const coordsRef = useRef<RunPoint[]>([]);
+
   const [state, setState] = useState<RunState>('idle');
-  const [coords, setCoords] = useState<{ latitude: number; longitude: number }[]>([]);
+  const [coords, setCoords] = useState<RunPoint[]>([]);
   const [elapsed, setElapsed] = useState(0);
   const [distance, setDistance] = useState(0);
   const [pace, setPace] = useState(0);
@@ -58,8 +62,27 @@ export default function RunScreen() {
     if (timerRef.current) clearInterval(timerRef.current);
     watchRef.current = null;
     timerRef.current = null;
+
+    const pts = coordsRef.current;
+    if (pts.length > 1) {
+      const now = new Date();
+      const h = now.getHours().toString().padStart(2, '0');
+      const mn = now.getMinutes().toString().padStart(2, '0');
+      const d = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const run: RunData = {
+        id: Date.now().toString(),
+        title: pts.length > 10 ? 'Morning Run' : 'Quick Walk',
+        date: `${d} at ${h}:${mn}`,
+        distance: distRef.current / 1000,
+        duration: elapsed,
+        pace: elapsed > 0 ? (distRef.current / 1000) / (elapsed / 3600) : 0,
+        coords: pts,
+      };
+      saveRun(run);
+    }
+
     setState('stopped');
-  }, []);
+  }, [elapsed]);
 
   const resetRun = useCallback(() => {
     setCoords([]);
@@ -68,6 +91,7 @@ export default function RunScreen() {
     setPace(0);
     distRef.current = 0;
     prevRef.current = null;
+    coordsRef.current = [];
     setState('idle');
   }, []);
 
@@ -82,6 +106,7 @@ export default function RunScreen() {
     setPace(0);
     distRef.current = 0;
     prevRef.current = null;
+    coordsRef.current = [];
     startTimeRef.current = Date.now();
 
     timerRef.current = setInterval(() => {
@@ -96,14 +121,13 @@ export default function RunScreen() {
       { accuracy: Location.Accuracy.BestForNavigation, distanceInterval: 3, timeInterval: 3000 },
       (loc) => {
         const { latitude, longitude } = loc.coords;
-        setCoords((prev) => {
-          const next = [...prev, { latitude, longitude }];
-          if (prevRef.current) {
-            distRef.current += haversine(prevRef.current, { lat: latitude, lng: longitude });
-          }
-          prevRef.current = { lat: latitude, lng: longitude };
-          return next;
-        });
+        const pt: RunPoint = { latitude, longitude, timestamp: Date.now() };
+        coordsRef.current.push(pt);
+        setCoords([...coordsRef.current]);
+        if (prevRef.current) {
+          distRef.current += haversine(prevRef.current, { lat: latitude, lng: longitude });
+        }
+        prevRef.current = { lat: latitude, lng: longitude };
         if (mapRef.current) {
           mapRef.current.animateToRegion({ latitude, longitude, latitudeDelta: 0.005, longitudeDelta: 0.005 }, 1000);
         }
