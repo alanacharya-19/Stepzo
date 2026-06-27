@@ -1,13 +1,16 @@
 import { useState, useCallback, Fragment } from 'react';
-import { ScrollView, Platform, View, Pressable } from 'react-native';
+import { ScrollView, Platform, View, Pressable, TextInput, Modal } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { HomeHeader } from '@/components/HomeHeader';
 import { useTheme } from '@/hooks/use-theme';
 import { loadRuns } from '@/utils/storage';
+import { loadGoals, saveGoals, calcWeeklyDistance, calcMonthlyDistance, calcStreak } from '@/utils/goals';
+import { checkAchievements } from '@/utils/achievements';
 import type { RunData } from '@/types';
 import { router } from 'expo-router';
 
@@ -16,16 +19,7 @@ const walkPng = require('@/assets/logo/walking.png');
 const footstepsPng = require('@/assets/logo/footsteps.png');
 const timePng = require('@/assets/logo/time.png');
 const calPng = require('@/assets/logo/calories.png');
-
-function SectionHeader({ title, right }: { title: string; right?: string }) {
-  const theme = useTheme();
-  return (
-    <View className="flex-row items-center mb-4 px-6">
-      <ThemedText className="text-[17px] font-bold flex-1">{title}</ThemedText>
-      {right && <ThemedText className="text-[13px]" style={{ color: theme.primary }}>{right}</ThemedText>}
-    </View>
-  );
-}
+const streakPng = require('@/assets/logo/streak.png');
 
 function ThisWeekCard({ runs }: { runs: RunData[] }) {
   const theme = useTheme();
@@ -56,6 +50,68 @@ function ThisWeekCard({ runs }: { runs: RunData[] }) {
           </View>
         ))}
       </View>
+    </View>
+  );
+}
+
+function StreakBadge({ streak }: { streak: number }) {
+  const theme = useTheme();
+  return (
+    <View className="mx-6 mt-4 rounded-2xl p-4 flex-row items-center" style={{ backgroundColor: theme.card }}>
+      <View className="w-10 h-10 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${theme.primary}12` }}>
+        <Image source={streakPng} style={{ width: 22, height: 22 }} />
+      </View>
+      <View className="flex-1">
+        <ThemedText className="text-[15px] font-bold">Running Streak</ThemedText>
+        <ThemedText className="text-[11px] mt-0.5" style={{ color: theme.textSecondary }}>
+          {streak > 0 ? `You've run ${streak} day${streak > 1 ? 's' : ''} in a row!` : 'Start a streak today'}
+        </ThemedText>
+      </View>
+      <View className="items-center">
+        <ThemedText className="text-[22px] font-bold" style={{ color: theme.primary }}>{streak}</ThemedText>
+        <ThemedText className="text-[9px]" style={{ color: theme.textSecondary }}>days</ThemedText>
+      </View>
+    </View>
+  );
+}
+
+function GoalProgress({ label, current, target, color }: { label: string; current: number; target: number; color: string }) {
+  const theme = useTheme();
+  const pct = Math.min(current / target, 1);
+  return (
+    <View className="mb-3">
+      <View className="flex-row items-center mb-1.5">
+        <ThemedText className="text-[13px] font-semibold flex-1">{label}</ThemedText>
+        <ThemedText className="text-[12px]" style={{ color: theme.textSecondary }}>{current.toFixed(1)} / {target} km</ThemedText>
+      </View>
+      <View className="h-2.5 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
+        <View className="h-full rounded-full" style={{ width: `${Math.min(pct * 100, 100)}%`, backgroundColor: pct >= 1 ? '#22C55E' : color }} />
+      </View>
+    </View>
+  );
+}
+
+function GoalsCard({ runs, onEdit }: { runs: RunData[]; onEdit: () => void }) {
+  const theme = useTheme();
+  const [goals, setGoals] = useState({ weeklyDistance: 15, monthlyDistance: 60 });
+
+  useFocusEffect(useCallback(() => {
+    loadGoals().then(setGoals);
+  }, []));
+
+  const weekly = calcWeeklyDistance(runs);
+  const monthly = calcMonthlyDistance(runs);
+
+  return (
+    <View className="mx-6 mt-4 rounded-2xl p-5" style={{ backgroundColor: theme.card }}>
+      <View className="flex-row items-center mb-4">
+        <ThemedText className="text-[15px] font-bold flex-1">Goals</ThemedText>
+        <Pressable onPress={onEdit}>
+          <Ionicons name="settings-outline" size={18} color={theme.textSecondary} />
+        </Pressable>
+      </View>
+      <GoalProgress label="Weekly Distance" current={weekly} target={goals.weeklyDistance} color="#3B82F6" />
+      <GoalProgress label="Monthly Distance" current={monthly} target={goals.monthlyDistance} color="#A855F7" />
     </View>
   );
 }
@@ -160,21 +216,77 @@ function RecentCard({ runs, onSelect }: { runs: RunData[]; onSelect: (id: string
 }
 
 export default function HomeScreen() {
+  const theme = useTheme();
   const [runs, setRuns] = useState<RunData[]>([]);
+  const [streak, setStreak] = useState(0);
+  const [goalModal, setGoalModal] = useState(false);
+  const [weeklyTarget, setWeeklyTarget] = useState('15');
+  const [monthlyTarget, setMonthlyTarget] = useState('60');
 
   useFocusEffect(useCallback(() => {
-    loadRuns().then(setRuns);
+    (async () => {
+      const r = await loadRuns();
+      setRuns(r);
+      setStreak(calcStreak(r));
+      const g = await loadGoals();
+      setWeeklyTarget(String(g.weeklyDistance));
+      setMonthlyTarget(String(g.monthlyDistance));
+      const newA = await checkAchievements(r);
+      // newA.forEach(id => { could show toast here });
+    })();
   }, []));
+
+  const handleSaveGoals = async () => {
+    const w = Math.max(1, Number(weeklyTarget) || 15);
+    const m = Math.max(1, Number(monthlyTarget) || 60);
+    await saveGoals({ weeklyDistance: w, monthlyDistance: m });
+    setGoalModal(false);
+  };
 
   return (
     <ThemedView className="flex-1">
       <HomeHeader />
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 120 : 100 }} showsVerticalScrollIndicator={false}>
         <ThisWeekCard runs={runs} />
+        <StreakBadge streak={streak} />
+        <GoalsCard runs={runs} onEdit={() => setGoalModal(true)} />
         <TodayCard runs={runs} />
         <RecentCard runs={runs} onSelect={(id) => router.push(`/run-detail/${id}`)} />
         <ThemedText className="text-center text-[11px] mt-8 mb-2" themeColor="textSecondary">Stepzo v1.0.0</ThemedText>
       </ScrollView>
+
+      <Modal visible={goalModal} transparent animationType="fade" onRequestClose={() => setGoalModal(false)}>
+        <Pressable className="flex-1 items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} onPress={() => setGoalModal(false)}>
+          <Pressable className="w-[85%] rounded-2xl p-6" style={{ backgroundColor: theme.card }} onPress={() => {}}>
+            <ThemedText className="text-[18px] font-bold mb-1">Set Goals</ThemedText>
+            <ThemedText className="text-[13px] mb-5" style={{ color: theme.textSecondary }}>Set your weekly and monthly distance targets</ThemedText>
+
+            <ThemedText className="text-[13px] font-semibold mb-1.5">Weekly Distance (km)</ThemedText>
+            <TextInput
+              className="h-[48] rounded-xl border px-4 text-[15px] mb-4"
+              style={{ backgroundColor: theme.inputBackground, borderColor: theme.inputBorder, color: theme.text }}
+              value={weeklyTarget}
+              onChangeText={setWeeklyTarget}
+              keyboardType="numeric"
+              placeholderTextColor={theme.textSecondary}
+            />
+
+            <ThemedText className="text-[13px] font-semibold mb-1.5">Monthly Distance (km)</ThemedText>
+            <TextInput
+              className="h-[48] rounded-xl border px-4 text-[15px] mb-6"
+              style={{ backgroundColor: theme.inputBackground, borderColor: theme.inputBorder, color: theme.text }}
+              value={monthlyTarget}
+              onChangeText={setMonthlyTarget}
+              keyboardType="numeric"
+              placeholderTextColor={theme.textSecondary}
+            />
+
+            <Pressable className="h-[48] rounded-xl items-center justify-center" style={{ backgroundColor: theme.primary }} onPress={handleSaveGoals}>
+              <ThemedText className="text-[16px] font-bold" style={{ color: '#0B1020' }}>Save Goals</ThemedText>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </ThemedView>
   );
 }
