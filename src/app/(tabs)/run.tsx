@@ -3,6 +3,7 @@ import { View, Pressable } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
 import { Image } from 'expo-image';
 import * as Location from 'expo-location';
+import * as Speech from 'expo-speech';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -32,7 +33,13 @@ function fmtPace(kmh: number) {
   return `${m}:${sec.toString().padStart(2, '0')}`;
 }
 
-type RunState = 'idle' | 'running' | 'stopped';
+function speakSplit(km: number, seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const sec = Math.floor(seconds % 60);
+  Speech.speak(`Kilometer ${km} in ${m} minutes ${sec} seconds`, { rate: 0.85 });
+}
+
+type RunState = 'idle' | 'running' | 'paused' | 'stopped';
 
 export default function RunScreen() {
   const theme = useTheme();
@@ -42,8 +49,10 @@ export default function RunScreen() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const distRef = useRef(0);
   const prevRef = useRef<{ lat: number; lng: number } | null>(null);
-
   const coordsRef = useRef<RunPoint[]>([]);
+  const pauseOffsetRef = useRef(0);
+  const pauseStartRef = useRef(0);
+  const lastKmRef = useRef(0);
 
   const [state, setState] = useState<RunState>('idle');
   const [coords, setCoords] = useState<RunPoint[]>([]);
@@ -56,6 +65,80 @@ export default function RunScreen() {
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
+
+  const startTimer = () => {
+    timerRef.current = setInterval(() => {
+      const sec = (Date.now() - startTimeRef.current - pauseOffsetRef.current) / 1000;
+      setElapsed(sec);
+      const km = distRef.current / 1000;
+      setDistance(km);
+      setPace(sec > 0 ? km / (sec / 3600) : 0);
+    }, 1000);
+  };
+
+  const startWatcher = async () => {
+    watchRef.current = await Location.watchPositionAsync(
+      { accuracy: Location.Accuracy.BestForNavigation, distanceInterval: 3, timeInterval: 3000 },
+      (loc) => {
+        const { latitude, longitude } = loc.coords;
+        const pt: RunPoint = { latitude, longitude, timestamp: Date.now() };
+        coordsRef.current.push(pt);
+        setCoords([...coordsRef.current]);
+        if (prevRef.current) {
+          const seg = haversine(prevRef.current, { lat: latitude, lng: longitude });
+          distRef.current += seg;
+          const totalKm = distRef.current / 1000;
+          const kmMark = Math.floor(totalKm);
+          if (kmMark > lastKmRef.current) {
+            lastKmRef.current = kmMark;
+            const splitSec = (Date.now() - startTimeRef.current - pauseOffsetRef.current) / 1000;
+            speakSplit(kmMark, splitSec);
+          }
+        }
+        prevRef.current = { lat: latitude, lng: longitude };
+        if (mapRef.current) {
+          mapRef.current.animateToRegion({ latitude, longitude, latitudeDelta: 0.005, longitudeDelta: 0.005 }, 1000);
+        }
+        setInitialRegion((prev) => ({ ...prev, latitude, longitude }));
+      }
+    );
+  };
+
+  const startRun = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') return;
+
+    setState('running');
+    setCoords([]);
+    setElapsed(0);
+    setDistance(0);
+    setPace(0);
+    distRef.current = 0;
+    prevRef.current = null;
+    coordsRef.current = [];
+    pauseOffsetRef.current = 0;
+    lastKmRef.current = 0;
+    startTimeRef.current = Date.now();
+
+    startTimer();
+    await startWatcher();
+  };
+
+  const pauseRun = useCallback(() => {
+    if (watchRef.current) watchRef.current.remove();
+    watchRef.current = null;
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = null;
+    pauseStartRef.current = Date.now();
+    setState('paused');
+  }, []);
+
+  const resumeRun = useCallback(async () => {
+    pauseOffsetRef.current += Date.now() - pauseStartRef.current;
+    startTimer();
+    await startWatcher();
+    setState('running');
+  }, []);
 
   const stopRun = useCallback(() => {
     if (watchRef.current) watchRef.current.remove();
@@ -92,49 +175,10 @@ export default function RunScreen() {
     distRef.current = 0;
     prevRef.current = null;
     coordsRef.current = [];
+    pauseOffsetRef.current = 0;
+    lastKmRef.current = 0;
     setState('idle');
   }, []);
-
-  const startRun = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') return;
-
-    setState('running');
-    setCoords([]);
-    setElapsed(0);
-    setDistance(0);
-    setPace(0);
-    distRef.current = 0;
-    prevRef.current = null;
-    coordsRef.current = [];
-    startTimeRef.current = Date.now();
-
-    timerRef.current = setInterval(() => {
-      const sec = (Date.now() - startTimeRef.current) / 1000;
-      setElapsed(sec);
-      const km = distRef.current / 1000;
-      setDistance(km);
-      setPace(sec > 0 ? km / (sec / 3600) : 0);
-    }, 1000);
-
-    watchRef.current = await Location.watchPositionAsync(
-      { accuracy: Location.Accuracy.BestForNavigation, distanceInterval: 3, timeInterval: 3000 },
-      (loc) => {
-        const { latitude, longitude } = loc.coords;
-        const pt: RunPoint = { latitude, longitude, timestamp: Date.now() };
-        coordsRef.current.push(pt);
-        setCoords([...coordsRef.current]);
-        if (prevRef.current) {
-          distRef.current += haversine(prevRef.current, { lat: latitude, lng: longitude });
-        }
-        prevRef.current = { lat: latitude, lng: longitude };
-        if (mapRef.current) {
-          mapRef.current.animateToRegion({ latitude, longitude, latitudeDelta: 0.005, longitudeDelta: 0.005 }, 1000);
-        }
-        setInitialRegion((prev) => ({ ...prev, latitude, longitude }));
-      }
-    );
-  };
 
   useEffect(() => {
     return () => {
@@ -206,16 +250,31 @@ export default function RunScreen() {
         ))}
       </View>
 
-      {/* Stop button */}
+      {/* Pause overlay */}
+      {state === 'paused' && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(11,16,32,0.75)', alignItems: 'center', justifyContent: 'center' }}>
+          <View className="w-20 h-20 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: `${theme.primary}12` }}>
+            <Ionicons name="pause" size={36} color={theme.primary} />
+          </View>
+          <ThemedText className="text-[22px] font-bold mb-1">Run Paused</ThemedText>
+          <ThemedText className="text-[13px] mb-8" style={{ color: theme.textSecondary }}>Take a breather, then pick up where you left off</ThemedText>
+          <Pressable onPress={resumeRun} className="w-16 h-16 rounded-full items-center justify-center" style={{ backgroundColor: theme.primary }}>
+            <Ionicons name="play" size={28} color="#0B1020" />
+          </Pressable>
+        </View>
+      )}
+
+      {/* Bottom controls */}
       {state === 'running' && (
         <View className="absolute left-0 right-0 items-center" style={{ bottom: 140 }}>
-          <Pressable
-            onPress={stopRun}
-            className="w-16 h-16 rounded-full items-center justify-center"
-            style={{ backgroundColor: '#EF4444' }}
-          >
-            <Ionicons name="stop" size={28} color="#FFF" />
-          </Pressable>
+          <View className="flex-row items-center gap-6">
+            <Pressable onPress={pauseRun} className="w-16 h-16 rounded-full items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
+              <Ionicons name="pause" size={28} color="#FFF" />
+            </Pressable>
+            <Pressable onPress={stopRun} className="w-16 h-16 rounded-full items-center justify-center" style={{ backgroundColor: '#EF4444' }}>
+              <Ionicons name="stop" size={28} color="#FFF" />
+            </Pressable>
+          </View>
         </View>
       )}
 
@@ -242,11 +301,7 @@ export default function RunScreen() {
                 </View>
               ))}
             </View>
-            <Pressable
-              onPress={resetRun}
-              className="mt-8 w-full py-3.5 rounded-xl items-center"
-              style={{ backgroundColor: theme.primary }}
-            >
+            <Pressable onPress={resetRun} className="mt-8 w-full py-3.5 rounded-xl items-center" style={{ backgroundColor: theme.primary }}>
               <ThemedText className="text-[16px] font-bold" style={{ color: '#0B1020' }}>Done</ThemedText>
             </Pressable>
           </View>

@@ -1,24 +1,22 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Pressable, Dimensions } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
+import { useFocusEffect } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from 'expo-image';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
+import { loadRuns } from '@/utils/storage';
+import type { RunData } from '@/types';
 
 const { height: SCREEN_H } = Dimensions.get('window');
 
-const RECENT_RUNS = [
-  { id: '1', title: 'Morning Run', distance: '5.2', time: '28', date: 'Today', type: 'run' },
-  { id: '2', title: 'Evening Walk', distance: '3.8', time: '20', date: 'Yesterday', type: 'walk' },
-  { id: '3', title: 'Afternoon Run', distance: '6.1', time: '33', date: 'Jun 23', type: 'run' },
-  { id: '4', title: 'Night Walk', distance: '2.4', time: '15', date: 'Jun 21', type: 'walk' },
-];
-
 const runPng = require('@/assets/logo/running.png');
 const walkPng = require('@/assets/logo/walking.png');
+
+const ROUTE_COLORS = ['#B7FF3C', '#3B82F6', '#A855F7', '#FF7A00', '#30D158', '#FFD60A', '#FF3B5C', '#00D4FF'];
 
 export default function TerritoryScreen() {
   const theme = useTheme();
@@ -26,6 +24,12 @@ export default function TerritoryScreen() {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locState, setLocState] = useState<'loading' | 'noPermission' | 'deviceDisabled' | 'ready'>('loading');
   const [requesting, setRequesting] = useState(false);
+  const [runs, setRuns] = useState<RunData[]>([]);
+  const [showRoutes, setShowRoutes] = useState(true);
+
+  useFocusEffect(useCallback(() => {
+    loadRuns().then(setRuns);
+  }, []));
 
   const getPosition = async () => {
     try {
@@ -92,7 +96,33 @@ export default function TerritoryScreen() {
       <View style={{ height: SCREEN_H * 0.5 }}>
         <MapView ref={mapRef} style={{ flex: 1 }} initialRegion={region} showsUserLocation={locState === 'ready'} showsMyLocationButton={locState === 'ready'} userInterfaceStyle="dark">
           {location && <Marker coordinate={{ latitude: location.lat, longitude: location.lng }} title="You" />}
+          {showRoutes && runs.map((r, i) => {
+            if (r.coords.length < 2) return null;
+            const coords = r.coords.map((c) => ({ latitude: c.latitude, longitude: c.longitude }));
+            return (
+              <Polyline
+                key={r.id}
+                coordinates={coords}
+                strokeColor={ROUTE_COLORS[i % ROUTE_COLORS.length]}
+                strokeWidth={3}
+                lineJoin="round"
+                lineCap="round"
+                opacity={0.6}
+              />
+            );
+          })}
         </MapView>
+
+        {/* Route toggle */}
+        {runs.length > 0 && locState === 'ready' && (
+          <Pressable
+            onPress={() => setShowRoutes((v) => !v)}
+            className="absolute top-14 right-5 w-10 h-10 rounded-xl items-center justify-center"
+            style={{ backgroundColor: showRoutes ? theme.primary : 'rgba(11,16,32,0.8)' }}
+          >
+            <Ionicons name="layers-outline" size={20} color={showRoutes ? '#0B1020' : '#FFF'} />
+          </Pressable>
+        )}
 
         {overlayState && (
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(11,16,32,0.75)', alignItems: 'center', justifyContent: 'center' }}>
@@ -102,12 +132,7 @@ export default function TerritoryScreen() {
               </View>
               <ThemedText className="text-[18px] font-bold mb-1.5">{overlayContent.title}</ThemedText>
               <ThemedText className="text-[13px] text-center leading-5 mb-6" style={{ color: theme.textSecondary }}>{overlayContent.desc}</ThemedText>
-              <Pressable
-                onPress={requestLocation}
-                disabled={requesting}
-                className="px-8 py-3.5 rounded-xl"
-                style={{ backgroundColor: theme.primary, opacity: requesting ? 0.6 : 1 }}
-              >
+              <Pressable onPress={requestLocation} disabled={requesting} className="px-8 py-3.5 rounded-xl" style={{ backgroundColor: theme.primary, opacity: requesting ? 0.6 : 1 }}>
                 <ThemedText className="text-[15px] font-bold" style={{ color: '#0B1020' }}>{requesting ? 'Please wait...' : overlayContent.btn}</ThemedText>
               </Pressable>
             </View>
@@ -117,29 +142,26 @@ export default function TerritoryScreen() {
       <View className="flex-1 rounded-t-3xl -mt-5 px-6 pt-6" style={{ backgroundColor: theme.background }}>
         <View className="flex-row items-center mb-5">
           <ThemedText className="text-[17px] font-bold flex-1">Recent Activities</ThemedText>
-          <Pressable>
-            <ThemedText className="text-[13px]" style={{ color: theme.primary }}>See All</ThemedText>
-          </Pressable>
         </View>
-        {RECENT_RUNS.map((r, i) => {
-          const icon = r.type === 'run' ? runPng : walkPng;
-          const tint = r.type === 'run' ? '#B7FF3C' : '#30D158';
-          return (
-            <View key={r.id} className="flex-row items-center py-3" style={{ borderBottomWidth: i < RECENT_RUNS.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
-              <View className="w-9 h-9 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${tint}12` }}>
-                <Image source={icon} style={{ width: 20, height: 20 }} />
+        {runs.length === 0 ? (
+          <ThemedText className="text-[13px] text-center py-6" style={{ color: theme.textSecondary }}>No activities yet</ThemedText>
+        ) : (
+          runs.slice(0, 10).map((r, i) => (
+            <View key={r.id} className="flex-row items-center py-3" style={{ borderBottomWidth: i < Math.min(runs.length, 10) - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
+              <View className="w-9 h-9 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${theme.primary}12` }}>
+                <Image source={r.distance > 2 ? runPng : walkPng} style={{ width: 20, height: 20 }} />
               </View>
               <View className="flex-1">
                 <ThemedText className="text-[14px] font-semibold">{r.title}</ThemedText>
                 <View className="flex-row items-center gap-3 mt-0.5">
-                  <ThemedText className="text-[11px]" themeColor="textSecondary">{r.distance} km</ThemedText>
-                  <ThemedText className="text-[11px]" themeColor="textSecondary">{r.time} min</ThemedText>
+                  <ThemedText className="text-[11px]" themeColor="textSecondary">{r.distance.toFixed(1)} km</ThemedText>
+                  <ThemedText className="text-[11px]" themeColor="textSecondary">{Math.round(r.duration / 60)} min</ThemedText>
                 </View>
               </View>
               <ThemedText className="text-[11px]" style={{ color: theme.textSecondary }}>{r.date}</ThemedText>
             </View>
-          );
-        })}
+          ))
+        )}
       </View>
     </ThemedView>
   );
