@@ -24,20 +24,35 @@ export default function TerritoryScreen() {
   const theme = useTheme();
   const mapRef = useRef<MapView>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [permStatus, setPermStatus] = useState<'idle' | 'denied' | 'granted'>('idle');
+  const [locState, setLocState] = useState<'loading' | 'noPermission' | 'deviceDisabled' | 'ready'>('loading');
   const [requesting, setRequesting] = useState(false);
+
+  const getPosition = async () => {
+    try {
+      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      setLocation({ lat: loc.coords.latitude, lng: loc.coords.longitude });
+      setLocState('ready');
+    } catch {
+      setLocState('deviceDisabled');
+    }
+  };
 
   const requestLocation = async () => {
     setRequesting(true);
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      setPermStatus('denied');
-      setRequesting(false);
-      return;
+    try {
+      setLocState('loading');
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setLocState('noPermission');
+        setRequesting(false);
+        return;
+      }
+      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      setLocation({ lat: loc.coords.latitude, lng: loc.coords.longitude });
+      setLocState('ready');
+    } catch {
+      setLocState('deviceDisabled');
     }
-    setPermStatus('granted');
-    const loc = await Location.getCurrentPositionAsync({});
-    setLocation({ lat: loc.coords.latitude, lng: loc.coords.longitude });
     setRequesting(false);
   };
 
@@ -58,28 +73,42 @@ export default function TerritoryScreen() {
     ? { latitude: location.lat, longitude: location.lng, latitudeDelta: 0.01, longitudeDelta: 0.01 }
     : { latitude: 40.7128, longitude: -74.006, latitudeDelta: 0.05, longitudeDelta: 0.05 };
 
+  const overlayState = locState !== 'ready' && locState !== 'loading' ? locState : null;
+
+  const overlayContent = overlayState === 'noPermission' ? {
+    icon: 'location-outline' as const,
+    title: 'Location Access',
+    desc: 'Enable location to see your position on the map and track your runs.',
+    btn: 'Enable Location',
+  } : {
+    icon: 'locate-outline' as const,
+    title: 'Location Services Off',
+    desc: 'Turn on device location settings to use the map and track your runs.',
+    btn: 'Turn On Location',
+  };
+
   return (
     <ThemedView className="flex-1">
       <View style={{ height: SCREEN_H * 0.5 }}>
-        <MapView ref={mapRef} style={{ flex: 1 }} initialRegion={region} showsUserLocation={permStatus === 'granted'} showsMyLocationButton={permStatus === 'granted'} userInterfaceStyle="dark">
+        <MapView ref={mapRef} style={{ flex: 1 }} initialRegion={region} showsUserLocation={locState === 'ready'} showsMyLocationButton={locState === 'ready'} userInterfaceStyle="dark">
           {location && <Marker coordinate={{ latitude: location.lat, longitude: location.lng }} title="You" />}
         </MapView>
 
-        {permStatus !== 'granted' && (
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(11,16,32,0.7)', alignItems: 'center', justifyContent: 'center' }}>
+        {overlayState && (
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(11,16,32,0.75)', alignItems: 'center', justifyContent: 'center' }}>
             <View className="items-center px-8">
               <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: `${theme.primary}12` }}>
-                <Ionicons name="location-outline" size={28} color={theme.primary} />
+                <Ionicons name={overlayContent.icon} size={28} color={theme.primary} />
               </View>
-              <ThemedText className="text-[18px] font-bold mb-1.5">Location Access</ThemedText>
-              <ThemedText className="text-[13px] text-center leading-5 mb-6" style={{ color: theme.textSecondary }}>Enable location to see your position on the map and track your runs.</ThemedText>
+              <ThemedText className="text-[18px] font-bold mb-1.5">{overlayContent.title}</ThemedText>
+              <ThemedText className="text-[13px] text-center leading-5 mb-6" style={{ color: theme.textSecondary }}>{overlayContent.desc}</ThemedText>
               <Pressable
                 onPress={requestLocation}
                 disabled={requesting}
                 className="px-8 py-3.5 rounded-xl"
                 style={{ backgroundColor: theme.primary, opacity: requesting ? 0.6 : 1 }}
               >
-                <ThemedText className="text-[15px] font-bold" style={{ color: '#0B1020' }}>{requesting ? 'Requesting...' : 'Enable Location'}</ThemedText>
+                <ThemedText className="text-[15px] font-bold" style={{ color: '#0B1020' }}>{requesting ? 'Please wait...' : overlayContent.btn}</ThemedText>
               </Pressable>
             </View>
           </View>
