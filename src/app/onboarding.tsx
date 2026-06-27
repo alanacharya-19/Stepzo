@@ -6,6 +6,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ONBOARDING_KEY = "@stepzo_onboarding_done";
+const USER_DATA_KEY = "@stepzo_user_data";
 
 const SLIDES = [
   { key: "gender", emoji: "👤", title: "What's your gender?", subtitle: "We'll personalize your running experience" },
@@ -42,7 +43,8 @@ export default function OnboardingScreen() {
   const isGender = current.key === "gender";
 
   const goHome = () => {
-    AsyncStorage.setItem(ONBOARDING_KEY, "true").then(() => {
+    const userData = JSON.stringify({ gender, age, height, weight, frequency, place });
+    AsyncStorage.multiSet([[ONBOARDING_KEY, "true"], [USER_DATA_KEY, userData]]).then(() => {
       router.replace("/(tabs)");
     });
   };

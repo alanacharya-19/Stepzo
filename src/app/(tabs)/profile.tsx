@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { ScrollView, Platform, View, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from "@expo/vector-icons";
@@ -7,6 +8,8 @@ import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const USER_DATA_KEY = "@stepzo_user_data";
 
 const MOCK_USER = {
   name: 'Alan',
@@ -43,13 +46,31 @@ const MENU_ITEMS = [
   { label: 'About', icon: 'information-circle-outline' },
 ];
 
+const LABEL_MAP: Record<string, string> = {
+  gender: 'Gender',
+  age: 'Age',
+  height: 'Height',
+  weight: 'Weight',
+  frequency: 'Running Frequency',
+  place: 'Terrain',
+};
+
 export default function ProfileScreen() {
   const theme = useTheme();
+  const [userData, setUserData] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    AsyncStorage.getItem(USER_DATA_KEY).then((data) => {
+      if (data) setUserData(JSON.parse(data));
+    });
+  }, []);
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('@stepzo_onboarding_done');
     router.replace('/login');
   };
+
+  const entries = Object.entries(userData).filter(([_, v]) => v);
 
   return (
     <ThemedView className="flex-1">
@@ -83,12 +104,38 @@ export default function ProfileScreen() {
             <View className="flex-1 ml-4">
               <ThemedText className="text-xl font-bold">{MOCK_USER.name}</ThemedText>
               <ThemedText className="text-[13px] mt-0.5" style={{ color: theme.textSecondary }}>{MOCK_USER.email}</ThemedText>
-              <Pressable className="mt-2.5 px-4 py-2 rounded-xl self-start" style={{ backgroundColor: '#8B5CF6' }}>
+              <Pressable
+                className="mt-2.5 px-4 py-2 rounded-xl self-start"
+                style={{ backgroundColor: '#8B5CF6' }}
+                onPress={() => router.push('/onboarding')}
+              >
                 <ThemedText className="text-[13px] font-bold text-white">Edit Profile</ThemedText>
               </Pressable>
             </View>
           </View>
         </View>
+
+        {/* Onboarding Data */}
+        {entries.length > 0 && (
+          <View className="mx-5 mt-5 rounded-3xl overflow-hidden" style={{ backgroundColor: theme.card }}>
+            <View className="flex-row items-center gap-2.5 px-5 pt-5 pb-3">
+              <View className="w-1 h-5 rounded-full" style={{ backgroundColor: theme.primary }} />
+              <ThemedText className="text-lg font-bold flex-1">Your Info</ThemedText>
+            </View>
+            <View className="px-5 pb-5">
+              {entries.map(([key, val], i) => (
+                <View
+                  key={key}
+                  className="flex-row items-center py-3"
+                  style={{ borderBottomWidth: i < entries.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.04)' }}
+                >
+                  <ThemedText className="flex-1 text-[14px]" style={{ color: theme.textSecondary }}>{LABEL_MAP[key] || key}</ThemedText>
+                  <ThemedText className="text-[14px] font-semibold">{val}</ThemedText>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* Activity Overview */}
         <View className="mx-5 mt-5 rounded-3xl overflow-hidden" style={{ backgroundColor: theme.card }}>
