@@ -40,25 +40,15 @@ export default function TerritoryScreen() {
 
   return (
     <ThemedView className="flex-1">
-      {/* Map section */}
       <View style={{ height: SCREEN_H * 0.55 }}>
-        <MapView
-          style={{ flex: 1 }}
-          initialRegion={region}
-          showsUserLocation={permitted}
-          showsMyLocationButton={permitted}
-          userInterfaceStyle="dark"
-        >
-          {location && (
-            <Marker coordinate={{ latitude: location.lat, longitude: location.lng }} title="You" />
-          )}
+        <MapView style={{ flex: 1 }} initialRegion={region} showsUserLocation={permitted} showsMyLocationButton={permitted} userInterfaceStyle="dark">
+          {location && <Marker coordinate={{ latitude: location.lat, longitude: location.lng }} title="You" />}
         </MapView>
       </View>
 
-      {/* Recent Activities */}
-      <View className="flex-1 rounded-t-3xl -mt-5" style={{ backgroundColor: theme.background }}>
-        <View className="flex-row items-center gap-2.5 px-5 pt-5 pb-3">
-          <View className="w-1 h-5 rounded-full" style={{ backgroundColor: theme.primary }} />
+      <View className="flex-1 rounded-t-3xl -mt-5 px-5 pt-5" style={{ backgroundColor: theme.background }}>
+        <View className="flex-row items-center mb-4">
+          <View className="w-1 h-5 rounded-full mr-2.5" style={{ backgroundColor: theme.primary }} />
           <ThemedText className="text-lg font-bold flex-1">Recent Activities</ThemedText>
           <Pressable>
             <ThemedText className="text-[13px] font-semibold" style={{ color: theme.primary }}>See All</ThemedText>
@@ -68,22 +58,18 @@ export default function TerritoryScreen() {
           const icon = r.type === 'run' ? runPng : walkPng;
           const tint = r.type === 'run' ? '#B7FF3C' : '#30D158';
           return (
-            <View
-              key={r.id}
-              className="flex-row items-center mx-5 py-3.5"
-              style={{ borderBottomWidth: i < RECENT_RUNS.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.04)' }}
-            >
-              <View className="w-10 h-10 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${tint}18` }}>
-                <Image source={icon} style={{ width: 22, height: 22 }} />
+            <View key={r.id} className="flex-row items-center py-3.5" style={{ borderBottomWidth: i < RECENT_RUNS.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.04)' }}>
+              <View className="w-9 h-9 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${tint}18` }}>
+                <Image source={icon} style={{ width: 20, height: 20 }} />
               </View>
               <View className="flex-1">
-                <ThemedText className="text-[15px] font-semibold">{r.title}</ThemedText>
+                <ThemedText className="text-[14px] font-semibold">{r.title}</ThemedText>
                 <View className="flex-row items-center gap-3 mt-0.5">
-                  <ThemedText className="text-[12px]" themeColor="textSecondary">{r.distance} km</ThemedText>
-                  <ThemedText className="text-[12px]" themeColor="textSecondary">{r.time} min</ThemedText>
+                  <ThemedText className="text-[11px]" themeColor="textSecondary">{r.distance} km</ThemedText>
+                  <ThemedText className="text-[11px]" themeColor="textSecondary">{r.time} min</ThemedText>
                 </View>
               </View>
-              <ThemedText className="text-[12px]" style={{ color: theme.textSecondary }}>{r.date}</ThemedText>
+              <ThemedText className="text-[11px]" style={{ color: theme.textSecondary }}>{r.date}</ThemedText>
             </View>
           );
         })}
