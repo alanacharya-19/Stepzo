@@ -91,14 +91,8 @@ function GoalProgress({ label, current, target, color }: { label: string; curren
   );
 }
 
-function GoalsCard({ runs, onEdit }: { runs: RunData[]; onEdit: () => void }) {
+function GoalsCard({ runs, goals, onEdit }: { runs: RunData[]; goals: { weeklyDistance: number; monthlyDistance: number }; onEdit: () => void }) {
   const theme = useTheme();
-  const [goals, setGoals] = useState({ weeklyDistance: 15, monthlyDistance: 60 });
-
-  useFocusEffect(useCallback(() => {
-    loadGoals().then(setGoals);
-  }, []));
-
   const weekly = calcWeeklyDistance(runs);
   const monthly = calcMonthlyDistance(runs);
 
@@ -219,6 +213,7 @@ export default function HomeScreen() {
   const theme = useTheme();
   const [runs, setRuns] = useState<RunData[]>([]);
   const [streak, setStreak] = useState(0);
+  const [goals, setGoals] = useState({ weeklyDistance: 15, monthlyDistance: 60 });
   const [goalModal, setGoalModal] = useState(false);
   const [weeklyTarget, setWeeklyTarget] = useState('15');
   const [monthlyTarget, setMonthlyTarget] = useState('60');
@@ -229,6 +224,7 @@ export default function HomeScreen() {
       setRuns(r);
       setStreak(calcStreak(r));
       const g = await loadGoals();
+      setGoals(g);
       setWeeklyTarget(String(g.weeklyDistance));
       setMonthlyTarget(String(g.monthlyDistance));
       const newA = await checkAchievements(r);
@@ -249,7 +245,7 @@ export default function HomeScreen() {
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 120 : 100 }} showsVerticalScrollIndicator={false}>
         <ThisWeekCard runs={runs} />
         <StreakBadge streak={streak} />
-        <GoalsCard runs={runs} onEdit={() => setGoalModal(true)} />
+        <GoalsCard runs={runs} goals={goals} onEdit={() => setGoalModal(true)} />
         <TodayCard runs={runs} />
         <RecentCard runs={runs} onSelect={(id) => router.push(`/run-detail/${id}`)} />
         <ThemedText className="text-center text-[11px] mt-8 mb-2" themeColor="textSecondary">Stepzo v1.0.0</ThemedText>

@@ -1,8 +1,9 @@
 import { Text, type TextProps } from 'react-native';
 import { useTheme } from '@/hooks/use-theme';
+import { Colors } from '@/constants/theme';
 
 export type ThemedTextProps = TextProps & {
-  themeColor?: string;
+  themeColor?: keyof typeof Colors;
 };
 
 export function ThemedText({ style, themeColor, className, ...rest }: ThemedTextProps) {
@@ -11,7 +12,7 @@ export function ThemedText({ style, themeColor, className, ...rest }: ThemedText
   return (
     <Text
       className={className}
-      style={[{ color: theme[themeColor as keyof typeof theme] ?? theme.text }, style]}
+      style={[{ color: themeColor ? theme[themeColor] : theme.text }, style]}
       {...rest}
     />
   );

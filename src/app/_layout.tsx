@@ -1,9 +1,10 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function RootLayout() {
   return (
-    <>
+    <ErrorBoundary>
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
@@ -14,6 +15,6 @@ export default function RootLayout() {
         <Stack.Screen name="run-detail/[id]" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="charts" options={{ animation: 'slide_from_right' }} />
       </Stack>
-    </>
+    </ErrorBoundary>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import MapView, { Polyline } from 'react-native-maps';
-import ViewShot from 'react-native-view-shot';
+import ViewShot, { type ViewShotRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from '@/components/ThemedView';
@@ -49,7 +49,7 @@ export default function RunDetailScreen() {
   const theme = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [run, setRun] = useState<RunData | null>(null);
-  const shotRef = useRef<ViewShot>(null);
+  const shotRef = useRef<ViewShotRef>(null);
 
   useEffect(() => {
     loadRuns().then((runs) => {
@@ -61,7 +61,7 @@ export default function RunDetailScreen() {
   const handleShare = async () => {
     if (!shotRef.current) return;
     try {
-      const uri = await (shotRef.current as any).capture?.();
+      const uri = await shotRef.current?.capture();
       if (uri && (await Sharing.isAvailableAsync())) {
         await Sharing.shareAsync(uri, { mimeType: 'image/png' });
       }
