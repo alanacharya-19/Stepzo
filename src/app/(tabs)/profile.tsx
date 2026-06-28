@@ -14,7 +14,6 @@ import { loadEarned, ALL_ACHIEVEMENTS } from '@/utils/achievements';
 import type { RunData } from '@/types';
 
 const UK = "@stepzo_user_data";
-const U = { n: 'Alan', a: 'A', e: 'alan@email.com' };
 const lm: Record<string, string> = { gender: 'Gender', age: 'Age', height: 'Height', weight: 'Weight', frequency: 'Running Frequency', place: 'Terrain' };
 
 const menu = [
@@ -61,6 +60,10 @@ export default function ProfileScreen() {
     setGoalModal(false);
   };
 
+  const displayName = ud.name || 'Runner';
+  const displayEmail = ud.email || 'runner@stepzo.app';
+  const initial = displayName.charAt(0).toUpperCase();
+
   const en = Object.entries(ud).filter(([_, v]) => v);
   const totalDist = runs.reduce((s, r) => s + r.distance, 0);
   const totalDuration = runs.reduce((s, r) => s + r.duration, 0);
@@ -89,11 +92,11 @@ export default function ProfileScreen() {
           </View>
           <View className="flex-row items-center">
             <View className="w-20 h-20 rounded-full items-center justify-center" style={{ backgroundColor: t.primary }}>
-              <ThemedText className="text-3xl font-bold text-white">{U.a}</ThemedText>
+              <ThemedText className="text-3xl font-bold text-white">{initial}</ThemedText>
             </View>
             <View className="flex-1 ml-4">
-              <ThemedText className="text-xl font-bold">{U.n}</ThemedText>
-              <ThemedText className="text-[13px] mt-0.5" style={{ color: t.textSecondary }}>{U.e}</ThemedText>
+              <ThemedText className="text-xl font-bold">{displayName}</ThemedText>
+              <ThemedText className="text-[13px] mt-0.5" style={{ color: t.textSecondary }}>{displayEmail}</ThemedText>
               <Pressable className="mt-2.5 px-4 py-2 rounded-xl self-start" style={{ backgroundColor: '#8B5CF6' }} onPress={() => router.push('/onboarding')}>
                 <ThemedText className="text-[13px] font-bold text-white">Edit Profile</ThemedText>
               </Pressable>

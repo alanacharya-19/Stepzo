@@ -46,9 +46,13 @@ export default function OnboardingScreen() {
   const isLast = step === SLIDES.length - 1;
   const isGender = current.key === "gender";
 
-  const goHome = () => {
-    const userData = JSON.stringify({ gender, age, height, weight, frequency, place });
-    AsyncStorage.multiSet([[ONBOARDING_KEY, "true"], [USER_DATA_KEY, userData]]).then(() => router.replace("/(tabs)"));
+  const goHome = async () => {
+    const existingRaw = await AsyncStorage.getItem(USER_DATA_KEY);
+    let existing = {};
+    if (existingRaw) try { existing = JSON.parse(existingRaw); } catch {}
+    const merged = { ...existing, gender, age, height, weight, frequency, place };
+    await AsyncStorage.multiSet([[ONBOARDING_KEY, "true"], [USER_DATA_KEY, JSON.stringify(merged)]]);
+    router.replace("/(tabs)");
   };
   const goNext = () => { if (isLast) goHome(); else setStep((s) => s + 1); };
 

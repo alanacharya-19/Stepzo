@@ -54,6 +54,9 @@ export default function RunScreen() {
   const pauseStartRef = useRef(0);
   const lastKmRef = useRef(0);
 
+  const stateRef = useRef<RunState>('idle');
+  const elapsedRef = useRef(0);
+
   const [state, setState] = useState<RunState>('idle');
   const [coords, setCoords] = useState<RunPoint[]>([]);
   const [elapsed, setElapsed] = useState(0);
@@ -69,6 +72,7 @@ export default function RunScreen() {
   const startTimer = () => {
     timerRef.current = setInterval(() => {
       const sec = (Date.now() - startTimeRef.current - pauseOffsetRef.current) / 1000;
+      elapsedRef.current = sec;
       setElapsed(sec);
       const km = distRef.current / 1000;
       setDistance(km);
@@ -109,6 +113,7 @@ export default function RunScreen() {
     if (status !== 'granted') return;
 
     setState('running');
+    stateRef.current = 'running';
     setCoords([]);
     setElapsed(0);
     setDistance(0);
@@ -131,6 +136,7 @@ export default function RunScreen() {
     timerRef.current = null;
     pauseStartRef.current = Date.now();
     setState('paused');
+    stateRef.current = 'paused';
   }, []);
 
   const resumeRun = useCallback(async () => {
@@ -138,6 +144,28 @@ export default function RunScreen() {
     startTimer();
     await startWatcher();
     setState('running');
+    stateRef.current = 'running';
+  }, []);
+
+  const saveCurrentRun = useCallback(() => {
+    const pts = coordsRef.current;
+    if (pts.length < 2) return;
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2, '0');
+    const mn = now.getMinutes().toString().padStart(2, '0');
+    const d = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const sec = elapsedRef.current;
+    const distKm = distRef.current / 1000;
+    const run: RunData = {
+      id: Date.now().toString(),
+      title: pts.length > 10 ? 'Morning Run' : 'Quick Walk',
+      date: `${d} at ${h}:${mn}`,
+      distance: distKm,
+      duration: sec,
+      pace: sec > 0 ? distKm / (sec / 3600) : 0,
+      coords: pts,
+    };
+    saveRun(run);
   }, []);
 
   const stopRun = useCallback(() => {
@@ -146,26 +174,10 @@ export default function RunScreen() {
     watchRef.current = null;
     timerRef.current = null;
 
-    const pts = coordsRef.current;
-    if (pts.length > 1) {
-      const now = new Date();
-      const h = now.getHours().toString().padStart(2, '0');
-      const mn = now.getMinutes().toString().padStart(2, '0');
-      const d = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const run: RunData = {
-        id: Date.now().toString(),
-        title: pts.length > 10 ? 'Morning Run' : 'Quick Walk',
-        date: `${d} at ${h}:${mn}`,
-        distance: distRef.current / 1000,
-        duration: elapsed,
-        pace: elapsed > 0 ? (distRef.current / 1000) / (elapsed / 3600) : 0,
-        coords: pts,
-      };
-      saveRun(run);
-    }
-
+    saveCurrentRun();
     setState('stopped');
-  }, [elapsed]);
+    stateRef.current = 'stopped';
+  }, [saveCurrentRun]);
 
   const resetRun = useCallback(() => {
     setCoords([]);
@@ -184,8 +196,11 @@ export default function RunScreen() {
     return () => {
       if (watchRef.current) watchRef.current.remove();
       if (timerRef.current) clearInterval(timerRef.current);
+      if (stateRef.current === 'running' || stateRef.current === 'paused') {
+        saveCurrentRun();
+      }
     };
-  }, []);
+  }, [saveCurrentRun]);
 
   if (state === 'idle') {
     return (

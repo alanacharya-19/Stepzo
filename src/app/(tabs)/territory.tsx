@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Pressable, Dimensions } from 'react-native';
+import { View, Pressable, Dimensions, Linking } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useFocusEffect } from 'expo-router';
@@ -22,7 +22,7 @@ export default function TerritoryScreen() {
   const theme = useTheme();
   const mapRef = useRef<MapView>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locState, setLocState] = useState<'loading' | 'noPermission' | 'deviceDisabled' | 'ready'>('loading');
+  const [locState, setLocState] = useState<'loading' | 'noPermission' | 'denied' | 'deviceDisabled' | 'ready'>('loading');
   const [requesting, setRequesting] = useState(false);
   const [runs, setRuns] = useState<RunData[]>([]);
   const [showRoutes, setShowRoutes] = useState(true);
@@ -45,9 +45,9 @@ export default function TerritoryScreen() {
     setRequesting(true);
     try {
       setLocState('loading');
-      const { status } = await Location.requestForegroundPermissionsAsync();
+      const { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setLocState('noPermission');
+        setLocState(canAskAgain ? 'noPermission' : 'denied');
         setRequesting(false);
         return;
       }
@@ -84,6 +84,11 @@ export default function TerritoryScreen() {
     title: 'Location Access',
     desc: 'Enable location to see your position on the map and track your runs.',
     btn: 'Enable Location',
+  } : overlayState === 'denied' ? {
+    icon: 'lock-closed-outline' as const,
+    title: 'Location Access Denied',
+    desc: 'You permanently denied location access. Update your settings to use this feature.',
+    btn: 'Open Settings',
   } : {
     icon: 'locate-outline' as const,
     title: 'Location Services Off',
@@ -132,8 +137,8 @@ export default function TerritoryScreen() {
               </View>
               <ThemedText className="text-[18px] font-bold mb-1.5">{overlayContent.title}</ThemedText>
               <ThemedText className="text-[13px] text-center leading-5 mb-6" style={{ color: theme.textSecondary }}>{overlayContent.desc}</ThemedText>
-              <Pressable onPress={requestLocation} disabled={requesting} className="px-8 py-3.5 rounded-xl" style={{ backgroundColor: theme.primary, opacity: requesting ? 0.6 : 1 }}>
-                <ThemedText className="text-[15px] font-bold" style={{ color: '#0B1020' }}>{requesting ? 'Please wait...' : overlayContent.btn}</ThemedText>
+              <Pressable onPress={overlayState === 'denied' ? Linking.openSettings : requestLocation} disabled={requesting && overlayState !== 'denied'} className="px-8 py-3.5 rounded-xl" style={{ backgroundColor: theme.primary, opacity: requesting && overlayState !== 'denied' ? 0.6 : 1 }}>
+                <ThemedText className="text-[15px] font-bold" style={{ color: '#0B1020' }}>{requesting && overlayState !== 'denied' ? 'Please wait...' : overlayContent.btn}</ThemedText>
               </Pressable>
             </View>
           </View>

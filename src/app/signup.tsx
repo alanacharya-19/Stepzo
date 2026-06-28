@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
@@ -12,7 +13,10 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSignup = () => router.replace('/onboarding');
+  const handleSignup = async () => {
+    await AsyncStorage.setItem('@stepzo_user_data', JSON.stringify({ name, email }));
+    router.replace('/onboarding');
+  };
 
   const inp = (label: string, val: string, set: (v: string) => void, opts?: { secure?: boolean; ktype?: any; cap?: any }) => (
     <View className="mb-4">
