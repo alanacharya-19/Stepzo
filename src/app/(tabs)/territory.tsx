@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Pressable, Dimensions, Linking } from 'react-native';
+import { View, Pressable, Dimensions, Linking, Alert } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useFocusEffect } from 'expo-router';
@@ -8,7 +8,7 @@ import { Image } from 'expo-image';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/use-theme';
-import { loadRuns } from '@/utils/storage';
+import { loadRuns, deleteRun } from '@/utils/storage';
 import type { RunData } from '@/types';
 
 const { height: SCREEN_H } = Dimensions.get('window');
@@ -152,7 +152,7 @@ export default function TerritoryScreen() {
           <ThemedText className="text-[13px] text-center py-6" style={{ color: theme.textSecondary }}>No activities yet</ThemedText>
         ) : (
           runs.slice(0, 10).map((r, i) => (
-            <View key={r.id} className="flex-row items-center py-3" style={{ borderBottomWidth: i < Math.min(runs.length, 10) - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
+            <Pressable key={r.id} onLongPress={() => { Alert.alert('Delete Run', `Delete "${r.title}"?`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: async () => { await deleteRun(r.id); setRuns((prev) => prev.filter((x) => x.id !== r.id)); } }]); }} className="flex-row items-center py-3" style={{ borderBottomWidth: i < Math.min(runs.length, 10) - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
               <View className="w-9 h-9 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${theme.primary}12` }}>
                 <Image source={r.distance > 2 ? runPng : walkPng} style={{ width: 20, height: 20 }} />
               </View>
@@ -164,7 +164,7 @@ export default function TerritoryScreen() {
                 </View>
               </View>
               <ThemedText className="text-[11px]" style={{ color: theme.textSecondary }}>{r.date}</ThemedText>
-            </View>
+            </Pressable>
           ))
         )}
       </View>

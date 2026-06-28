@@ -1,5 +1,5 @@
 import { useState, useCallback, Fragment } from 'react';
-import { ScrollView, Platform, View, Pressable, TextInput, Modal } from 'react-native';
+import { ScrollView, Platform, View, Pressable, TextInput, Modal, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
@@ -8,11 +8,13 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { HomeHeader } from '@/components/HomeHeader';
 import { useTheme } from '@/hooks/use-theme';
-import { loadRuns } from '@/utils/storage';
+import { loadRuns, deleteRun } from '@/utils/storage';
 import { loadGoals, saveGoals, calcWeeklyDistance, calcMonthlyDistance, calcStreak } from '@/utils/goals';
-import { checkAchievements } from '@/utils/achievements';
+import { checkAchievements, ALL_ACHIEVEMENTS } from '@/utils/achievements';
 import type { RunData } from '@/types';
 import { router } from 'expo-router';
+import { CelebrationOverlay } from '@/components/CelebrationOverlay';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 
 const runPng = require('@/assets/logo/running.png');
 const walkPng = require('@/assets/logo/walking.png');
@@ -28,10 +30,10 @@ function ThisWeekCard({ runs }: { runs: RunData[] }) {
   const cal = Math.round(distance * 65);
   const count = runs.length;
   const wkStats = [
-    { label: 'Distance', value: distance.toFixed(1), unit: 'km' },
-    { label: 'Time', value: `${Math.floor(duration / 60)}`, unit: 'min' },
-    { label: 'Calories', value: cal.toLocaleString(), unit: 'kcal' },
-    { label: 'Activities', value: `${count}`, unit: 'runs' },
+    { label: 'Distance', value: distance, decimals: 1, unit: 'km' },
+    { label: 'Time', value: Math.floor(duration / 60), decimals: 0, unit: 'min' },
+    { label: 'Calories', value: cal, decimals: 0, unit: 'kcal' },
+    { label: 'Activities', value: count, decimals: 0, unit: 'runs' },
   ];
   return (
     <View className="mx-6 rounded-2xl p-5" style={{ backgroundColor: theme.card }}>
@@ -44,7 +46,7 @@ function ThisWeekCard({ runs }: { runs: RunData[] }) {
       <View className="flex-row">
         {wkStats.map((s) => (
           <View key={s.label} className="flex-1 items-center">
-            <ThemedText className="text-[22px] font-semibold tracking-tight text-white">{s.value}</ThemedText>
+            <AnimatedNumber value={s.value} decimals={s.decimals} style={{ fontSize: 22, fontWeight: '600', letterSpacing: -0.3, color: '#FFFFFF' }} />
             <ThemedText className="text-[10px] mt-1.5" style={{ color: theme.textSecondary }}>{s.unit}</ThemedText>
             <ThemedText className="text-[10px] mt-0.5 font-medium" style={{ color: theme.textSecondary }}>{s.label}</ThemedText>
           </View>
@@ -68,7 +70,7 @@ function StreakBadge({ streak }: { streak: number }) {
         </ThemedText>
       </View>
       <View className="items-center">
-        <ThemedText className="text-[22px] font-bold" style={{ color: theme.primary }}>{streak}</ThemedText>
+        <AnimatedNumber value={streak} style={{ fontSize: 22, fontWeight: '700', color: theme.primary }} />
         <ThemedText className="text-[9px]" style={{ color: theme.textSecondary }}>days</ThemedText>
       </View>
     </View>
@@ -145,9 +147,9 @@ function TodayCard({ runs }: { runs: RunData[] }) {
   const cals = Math.round(todayRuns.reduce((s, r) => s + r.distance, 0) * 65);
 
   const rings = [
-    { label: 'Steps', value: steps.toLocaleString(), goal: '10,000', unit: 'steps', p: Math.min(steps / 10000, 1), c: '#B7FF3C', icon: footstepsPng },
-    { label: 'Active Time', value: `${activeMin}`, goal: '45', unit: 'min', p: Math.min(activeMin / 45, 1), c: '#007AFF', icon: timePng },
-    { label: 'Calories', value: `${cals}`, goal: '500', unit: 'kcal', p: Math.min(cals / 500, 1), c: '#FF7A00', icon: calPng },
+    { label: 'Steps', value: steps, goal: '10,000', unit: 'steps', p: Math.min(steps / 10000, 1), c: '#B7FF3C', icon: footstepsPng },
+    { label: 'Active Time', value: activeMin, goal: '45', unit: 'min', p: Math.min(activeMin / 45, 1), c: '#007AFF', icon: timePng },
+    { label: 'Calories', value: cals, goal: '500', unit: 'kcal', p: Math.min(cals / 500, 1), c: '#FF7A00', icon: calPng },
   ];
 
   return (
@@ -166,7 +168,10 @@ function TodayCard({ runs }: { runs: RunData[] }) {
               </View>
               <View className="flex-1">
                 <ThemedText className="text-[12px] font-semibold">{r.label}</ThemedText>
-                <ThemedText className="text-[10px] mt-0.5" style={{ color: theme.textSecondary }}>{r.value} / {r.goal} {r.unit}</ThemedText>
+                <View className="flex-row items-center mt-0.5">
+                  <AnimatedNumber value={r.value} style={{ fontSize: 10, color: theme.textSecondary }} />
+                  <ThemedText className="text-[10px]" style={{ color: theme.textSecondary }}> / {r.goal} {r.unit}</ThemedText>
+                </View>
               </View>
             </View>
           ))}
@@ -176,7 +181,7 @@ function TodayCard({ runs }: { runs: RunData[] }) {
   );
 }
 
-function RecentCard({ runs, onSelect }: { runs: RunData[]; onSelect: (id: string) => void }) {
+function RecentCard({ runs, onSelect, onDelete }: { runs: RunData[]; onSelect: (id: string) => void; onDelete: (id: string) => void }) {
   const theme = useTheme();
   if (runs.length === 0) {
     return (
@@ -191,7 +196,7 @@ function RecentCard({ runs, onSelect }: { runs: RunData[]; onSelect: (id: string
         <ThemedText className="text-[15px] font-bold flex-1">Recent Activities</ThemedText>
       </View>
       {runs.slice(0, 10).map((a, i) => (
-        <Pressable key={a.id} onPress={() => onSelect(a.id)} className="flex-row items-center px-5 py-3.5" style={{ borderBottomWidth: i < Math.min(runs.length, 10) - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
+        <Pressable key={a.id} onPress={() => onSelect(a.id)} onLongPress={() => { Alert.alert('Delete Run', `Delete "${a.title}"?`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => onDelete(a.id) }]); }} className="flex-row items-center px-5 py-3.5" style={{ borderBottomWidth: i < Math.min(runs.length, 10) - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.03)' }}>
           <View className="w-9 h-9 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${theme.primary}12` }}>
             <Image source={a.distance > 2 ? runPng : walkPng} style={{ width: 20, height: 20 }} />
           </View>
@@ -217,6 +222,7 @@ export default function HomeScreen() {
   const [goalModal, setGoalModal] = useState(false);
   const [weeklyTarget, setWeeklyTarget] = useState('15');
   const [monthlyTarget, setMonthlyTarget] = useState('60');
+  const [celebration, setCelebration] = useState<{ title: string; subtitle: string } | null>(null);
 
   useFocusEffect(useCallback(() => {
     (async () => {
@@ -228,7 +234,10 @@ export default function HomeScreen() {
       setWeeklyTarget(String(g.weeklyDistance));
       setMonthlyTarget(String(g.monthlyDistance));
       const newA = await checkAchievements(r);
-      // newA.forEach(id => { could show toast here });
+      if (newA.length > 0) {
+        const a = ALL_ACHIEVEMENTS.find((a) => a.id === newA[0]);
+        if (a) setCelebration({ title: a.title, subtitle: a.subtitle });
+      }
     })();
   }, []));
 
@@ -247,7 +256,7 @@ export default function HomeScreen() {
         <StreakBadge streak={streak} />
         <GoalsCard runs={runs} goals={goals} onEdit={() => setGoalModal(true)} />
         <TodayCard runs={runs} />
-        <RecentCard runs={runs} onSelect={(id) => router.push(`/run-detail/${id}`)} />
+        <RecentCard runs={runs} onSelect={(id) => router.push(`/run-detail/${id}`)} onDelete={async (id) => { await deleteRun(id); setRuns((prev) => prev.filter((r) => r.id !== id)); }} />
         <ThemedText className="text-center text-[11px] mt-8 mb-2" themeColor="textSecondary">Stepzo v1.0.0</ThemedText>
       </ScrollView>
 
@@ -283,6 +292,13 @@ export default function HomeScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      <CelebrationOverlay
+        title={celebration?.title ?? ''}
+        subtitle={celebration?.subtitle ?? ''}
+        visible={celebration !== null}
+        onDismiss={() => setCelebration(null)}
+      />
     </ThemedView>
   );
 }

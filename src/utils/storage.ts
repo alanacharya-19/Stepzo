@@ -18,3 +18,9 @@ export async function saveRun(run: RunData): Promise<void> {
   runs.unshift(run);
   await AsyncStorage.setItem(RUNS_KEY, JSON.stringify(runs));
 }
+
+export async function deleteRun(id: string): Promise<void> {
+  const runs = await loadRuns();
+  const filtered = runs.filter((r) => r.id !== id);
+  await AsyncStorage.setItem(RUNS_KEY, JSON.stringify(filtered));
+}
