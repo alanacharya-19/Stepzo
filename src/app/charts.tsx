@@ -87,6 +87,16 @@ export default function ChartsScreen() {
       </View>
 
       <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
+        {runs.length === 0 ? (
+          <View className="rounded-2xl p-8 mb-4 items-center" style={{ backgroundColor: theme.card }}>
+            <View className="w-14 h-14 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: `${theme.primary}12` }}>
+              <Ionicons name="bar-chart-outline" size={28} color={theme.primary} />
+            </View>
+            <ThemedText className="text-[16px] font-bold mb-1">No Data Yet</ThemedText>
+            <ThemedText className="text-[13px] text-center leading-5" style={{ color: theme.textSecondary }}>Complete a run to see your weekly trends, pace history, and activity calendar.</ThemedText>
+          </View>
+        ) : (
+        <>
         {/* Weekly Distance */}
         <View className="rounded-2xl p-5 mb-4" style={{ backgroundColor: theme.card }}>
           <ThemedText className="text-[15px] font-bold mb-4">Weekly Distance</ThemedText>
@@ -171,6 +181,8 @@ export default function ChartsScreen() {
         </View>
 
         <View className="h-8" />
+        </>
+      )}
       </ScrollView>
     </ThemedView>
   );

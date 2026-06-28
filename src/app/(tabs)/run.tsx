@@ -33,6 +33,14 @@ function fmtPace(kmh: number) {
   return `${m}:${sec.toString().padStart(2, '0')}`;
 }
 
+function runTitle() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Morning Run';
+  if (h < 17) return 'Afternoon Run';
+  if (h < 21) return 'Evening Run';
+  return 'Night Run';
+}
+
 function speakSplit(km: number, seconds: number) {
   const m = Math.floor(seconds / 60);
   const sec = Math.floor(seconds % 60);
@@ -158,7 +166,7 @@ export default function RunScreen() {
     const distKm = distRef.current / 1000;
     const run: RunData = {
       id: Date.now().toString(),
-      title: pts.length > 10 ? 'Morning Run' : 'Quick Walk',
+      title: pts.length > 10 ? runTitle() : 'Quick Walk',
       date: `${d} at ${h}:${mn}`,
       distance: distKm,
       duration: sec,

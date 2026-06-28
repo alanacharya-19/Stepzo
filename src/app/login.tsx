@@ -20,7 +20,7 @@ export default function LoginScreen() {
       <View style={{ position: "absolute", bottom: 80, left: 28, right: 28 }}>
         <Text style={{ fontSize: 24, fontWeight: "700", color: "#FFF", textAlign: "center", marginBottom: 8 }}>Track Every Step</Text>
         <Text style={{ fontSize: 14, color: "#B5BDC9", textAlign: "center", marginBottom: 36, lineHeight: 20 }}>Monitor your runs, set goals,{'\n'}and crush your personal best.</Text>
-        <Pressable style={{ height: 52, borderRadius: 14, backgroundColor: "#B7FF3C", alignItems: "center", justifyContent: "center" }} onPress={() => router.replace("/onboarding")}>
+        <Pressable style={{ height: 52, borderRadius: 14, backgroundColor: "#B7FF3C", alignItems: "center", justifyContent: "center" }} onPress={() => router.replace("/signup")}>
           <Text style={{ fontSize: 16, fontWeight: "700", color: "#0B1020" }}>Get Started</Text>
         </Pressable>
       </View>

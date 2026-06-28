@@ -12,9 +12,18 @@ export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSignup = async () => {
-    await AsyncStorage.setItem('@stepzo_user_data', JSON.stringify({ name, email }));
+    setError('');
+    const trim = (s: string) => s.trim();
+    if (!trim(name)) { setError('Please enter your name'); return; }
+    if (!trim(email)) { setError('Please enter your email'); return; }
+    if (!/\S+@\S+\.\S+/.test(trim(email))) { setError('Please enter a valid email address'); return; }
+    if (!password) { setError('Please enter a password'); return; }
+    if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
+    if (password !== confirmPassword) { setError('Passwords do not match'); return; }
+    await AsyncStorage.setItem('@stepzo_user_data', JSON.stringify({ name: trim(name), email: trim(email) }));
     router.replace('/onboarding');
   };
 
@@ -27,7 +36,7 @@ export default function SignupScreen() {
         placeholder={`Enter ${label.toLowerCase()}`}
         placeholderTextColor={theme.textSecondary}
         value={val}
-        onChangeText={set}
+        onChangeText={(v) => { set(v); setError(''); }}
         secureTextEntry={opts?.secure}
         keyboardType={opts?.ktype}
         autoCapitalize={opts?.cap}
@@ -46,6 +55,11 @@ export default function SignupScreen() {
             {inp("Email", email, setEmail, { ktype: 'email-address' as any, cap: 'none' as any })}
             {inp("Password", password, setPassword, { secure: true })}
             {inp("Confirm Password", confirmPassword, setConfirmPassword, { secure: true })}
+            {error ? (
+              <View className="mb-4 py-2.5 px-3.5 rounded-xl" style={{ backgroundColor: 'rgba(239,68,68,0.12)' }}>
+                <ThemedText className="text-[13px] font-medium" style={{ color: '#EF4444' }}>{error}</ThemedText>
+              </View>
+            ) : null}
             <Pressable className="h-[50] rounded-xl items-center justify-center mt-2" style={{ backgroundColor: theme.primary }} onPress={handleSignup}>
               <ThemedText className="text-[16px] font-bold" style={{ color: '#0B1020' }}>Create Account</ThemedText>
             </Pressable>

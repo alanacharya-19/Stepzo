@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ScrollView, Platform, View, Pressable, TextInput, Modal } from 'react-native';
+import { ScrollView, Platform, View, Pressable, TextInput, Modal, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from 'expo-router';
@@ -180,7 +180,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Logout */}
-        <Pressable onPress={async () => { await AsyncStorage.removeItem('@stepzo_onboarding_done'); router.replace('/login'); }} className="mx-6 mt-5 rounded-2xl py-3.5 flex-row items-center justify-center gap-2" style={{ backgroundColor: t.card }}>
+        <Pressable onPress={() => { Alert.alert('Log Out', 'Are you sure you want to log out?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Log Out', style: 'destructive', onPress: async () => { await AsyncStorage.removeItem('@stepzo_onboarding_done'); router.replace('/login'); } }]); }} className="mx-6 mt-5 rounded-2xl py-3.5 flex-row items-center justify-center gap-2" style={{ backgroundColor: t.card }}>
           <Ionicons name="log-out-outline" size={18} color="#EF4444" />
           <ThemedText className="text-[14px] font-semibold" style={{ color: '#EF4444' }}>Log Out</ThemedText>
         </Pressable>
